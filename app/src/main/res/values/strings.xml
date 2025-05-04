@@ -1,17 +1,3 @@
 <resources>
     <string name="app_name">Sawa Application</string>
-
-    <!-- Onboarding Titles -->
-    <string name="onboarding_title_1">Welcome to My Community</string>
-    <string name="onboarding_title_2">Discover Shared Passions</string>
-    <string name="onboarding_title_3">Build Meaningful Connections</string>
-
-    <!-- Onboarding Descriptions -->
-    <string name="onboarding_text_1">A place where people come together through shared passions, whatever they may be</string>
-    <string name="onboarding_text_2">Explore a wide variety of interest-based communities and connect with others who share what you love</string>
-    <string name="onboarding_text_3">Join conversations, share experiences, and grow together in communities that feel like home</string>
-
-    <!-- Button Text -->
-    <string name="get_started">Get Started</string>
-
 </resources>
