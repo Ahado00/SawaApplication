@@ -1,6 +1,8 @@
 package com.example.sawaapplication.screens.event.presentation.vmModels
 
+import android.Manifest
 import android.net.Uri
+import android.os.Build
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -14,6 +16,7 @@ import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
 import android.util.Log
+import com.example.sawaapplication.core.sharedPreferences.GallerySharedPreference
 import com.example.sawaapplication.core.sharedPreferences.LocationSharedPreference
 import com.google.firebase.firestore.GeoPoint
 import kotlinx.coroutines.Job
@@ -21,7 +24,8 @@ import kotlinx.coroutines.Job
 @HiltViewModel
 class CreateEventViewModel @Inject constructor(
     private val createEventUseCase: CreateEventUseCase,
-    private val locationPrefs: LocationSharedPreference
+    private val locationPrefs: LocationSharedPreference,
+    private val galleryPrefs : GallerySharedPreference
 ) : ViewModel() {
 
     var communityId by mutableStateOf<String?>("")
@@ -83,7 +87,8 @@ class CreateEventViewModel @Inject constructor(
             }
         }
     }
-    fun shouldRequestLocation(): Boolean { // check if the permission is requested
+
+    fun shouldRequestLocation(): Boolean { // check if the Location is requested
         val alreadyRequested = locationPrefs.hasRequested()
         if (!alreadyRequested) {
             locationPrefs.markAsRequested()
@@ -91,4 +96,13 @@ class CreateEventViewModel @Inject constructor(
         }
         return false
     }
+
+   fun shouldRequestGallery() : Boolean { // check if the Gallery is requested
+       val alreadyRequested = galleryPrefs.hasRequested()
+       if (!alreadyRequested) {
+           galleryPrefs.markAsRequested()
+           return true
+       }
+       return false
+   }
 }

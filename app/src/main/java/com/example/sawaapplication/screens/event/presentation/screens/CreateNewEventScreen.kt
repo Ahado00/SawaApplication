@@ -1,6 +1,8 @@
 package com.example.sawaapplication.screens.event.presentation.screens
 
+import android.Manifest
 import android.net.Uri
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -77,7 +79,12 @@ fun CreateNewEventScreen(
 ) {
     val context = LocalContext.current
     val success = viewModel.success.value
-    val locationPermissionState = rememberPermissionState(android.Manifest.permission.ACCESS_FINE_LOCATION)
+    val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
+    val shouldRequestGallery = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        rememberPermissionState(Manifest.permission.READ_MEDIA_IMAGES)
+    } else {
+        rememberPermissionState(Manifest.permission.READ_EXTERNAL_STORAGE)
+    }
 
     var pickedLocation by remember { mutableStateOf<LatLng?>(null) }
 
@@ -106,6 +113,10 @@ fun CreateNewEventScreen(
     LaunchedEffect(Unit) {
         if (viewModel.shouldRequestLocation()) {
             locationPermissionState.launchPermissionRequest()
+
+        }
+        if (viewModel.shouldRequestGallery()){
+            shouldRequestGallery.launchPermissionRequest()
         }
     }
 
