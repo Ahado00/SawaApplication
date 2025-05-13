@@ -236,7 +236,7 @@ fun CreateNewEventScreen(
                             if (locationPermissionState.status.isGranted) {
                                 viewModel.isMapVisible = true
                             } else {
-                                showPermissionDialog = true
+                                showPermissionDialog = false
                             }
                         }
                     )
@@ -244,9 +244,9 @@ fun CreateNewEventScreen(
             )
 
             when {
-                locationPermissionState.status.isGranted -> {
-
-                }
+//                locationPermissionState.status.isGranted -> {
+//
+//                }
 
                 locationPermissionState.status.shouldShowRationale -> {
                     // Display rationale if the user has previously denied permission
