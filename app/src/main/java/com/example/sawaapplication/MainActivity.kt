@@ -8,7 +8,7 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.navigation.compose.rememberNavController
-import com.example.sawaapplication.core.SharedPreferences.LanguageManager
+import com.example.sawaapplication.core.sharedPreferences.LanguageManager
 import com.example.sawaapplication.navigation.AppNavigation
 import com.example.sawaapplication.screens.profile.screens.changeAppLocale
 import com.example.sawaapplication.screens.profile.vm.ThemeViewModel

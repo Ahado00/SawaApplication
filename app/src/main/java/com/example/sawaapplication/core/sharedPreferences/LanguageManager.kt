@@ -1,4 +1,4 @@
-package com.example.sawaapplication.core.SharedPreferences
+package com.example.sawaapplication.core.sharedPreferences
 
 import android.content.Context
 
