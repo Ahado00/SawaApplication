@@ -6,6 +6,7 @@ data class Post(
     val content: String = "" ,
     val imageUri: String = "" ,
     val likes: Int = 0,
+    val likedBy: List<String> = emptyList(),
     val createdAt: String = "",
     val communityId: String = ""
 )

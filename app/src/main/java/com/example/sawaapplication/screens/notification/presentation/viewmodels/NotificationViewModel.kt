@@ -61,6 +61,7 @@ class NotificationViewModel @Inject constructor(
         _hasUnreadNotifications.value = true
     }
 
+    // send notification for the user when they updated the profile
     fun storeProfileUpdateNotification() {
         val user = firebaseAuth.currentUser
         user?.let {
@@ -88,6 +89,7 @@ class NotificationViewModel @Inject constructor(
         }
     }
 
+    // send notification for the creator of the event
     fun storeEventCreatedNotification(eventName: String) {
         val user = firebaseAuth.currentUser
         user?.let {
@@ -113,6 +115,7 @@ class NotificationViewModel @Inject constructor(
         }
     }
 
+    // fetch the notification in the notification screen
     fun fetchNotifications() {
         val user = firebaseAuth.currentUser
         user?.let {
@@ -145,6 +148,7 @@ class NotificationViewModel @Inject constructor(
         }
     }
 
+    // send notification for the members of the community to notify them about the event
     fun notifyCommunityMembersOfNewEvent(communityId: String, eventName: String) {
         val db = FirebaseFirestore.getInstance()
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
@@ -187,8 +191,6 @@ class NotificationViewModel @Inject constructor(
                 Log.e("NotificationVM", "Failed to get community members: $e")
             }
     }
-
-
 
 }
 

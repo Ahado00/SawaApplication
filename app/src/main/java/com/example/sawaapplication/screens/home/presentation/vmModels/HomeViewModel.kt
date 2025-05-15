@@ -181,6 +181,12 @@ class HomeViewModel @Inject constructor(
     fun likePost(post: Post) {
         viewModelScope.launch {
             try {
+                val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+                if (currentUserId.isNullOrEmpty()) {
+                    Log.e("HomeViewModel", "User not logged in")
+                    return@launch
+                }
+
                 val docId = postDocumentIds.value[post]
                 if (docId == null) {
                     Log.e("HomeViewModel", "Document ID not found for post")
@@ -193,25 +199,43 @@ class HomeViewModel @Inject constructor(
                     .collection("posts")
                     .document(docId)
 
-                val snapshot = postRef.get().await()
-                val currentLikes = snapshot.getLong("likes") ?: 0
-                val newLikes = if (currentLikes == 1L) 0 else 1
-
                 firestore.runTransaction { transaction ->
-                    transaction.update(postRef, "likes", newLikes)
+                    val snapshot = transaction.get(postRef)
+
+                    val currentLikes = snapshot.getLong("likes") ?: 0
+                    val likedBy = snapshot.get("likedBy") as? List<String> ?: emptyList()
+
+                    val isLiked = currentUserId in likedBy
+
+                    val newLikedBy = if (isLiked) {
+                        likedBy - currentUserId
+                    } else {
+                        likedBy + currentUserId
+                    }
+
+                    val newLikes = newLikedBy.size
+
+                    transaction.update(
+                        postRef, mapOf(
+                            "likes" to newLikes,
+                            "likedBy" to newLikedBy
+                        )
+                    )
+
+                    val updatedPost = post.copy(
+                        likes = newLikes,
+                        likedBy = newLikedBy
+                    )
+
+                    _posts.value = _posts.value.map {
+                        if (it == post) updatedPost else it
+                    }
+
+                    _postDocumentIds.value = _postDocumentIds.value.toMutableMap().apply {
+                        remove(post)
+                        put(updatedPost, docId)
+                    }
                 }.await()
-
-                val updatedPost = post.copy(likes = newLikes.toInt())
-                _posts.value = _posts.value.map {
-                    if (it == post) updatedPost else it
-                }
-
-                // Also update the post ID mapping to match the new object
-                _postDocumentIds.value = _postDocumentIds.value.toMutableMap().apply {
-                    remove(post)
-                    put(updatedPost, docId)
-                }
-
             } catch (e: Exception) {
                 Log.e("HomeViewModel", "Failed to like post: ${e.message}")
             }
