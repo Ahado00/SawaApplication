@@ -3,6 +3,8 @@ package com.example.sawaapplication.screens.notification.presentation.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.sawaapplication.core.sharedPreferences.NotificationPreferences
+import com.example.sawaapplication.screens.notification.domain.model.Notification
+import com.example.sawaapplication.screens.post.domain.model.Post
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -10,7 +12,6 @@ import com.google.firebase.firestore.Query
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,7 +27,7 @@ class NotificationViewModel @Inject constructor(
     val hasUnreadNotifications: StateFlow<Boolean> get() = _hasUnreadNotifications
 
     init {
-        checkUnreadStatus()
+        observeUnreadNotifications()
         fetchNotifications()
     }
 
@@ -51,16 +52,6 @@ class NotificationViewModel @Inject constructor(
         }
     }
 
-
-    fun checkUnreadStatus() {
-        _hasUnreadNotifications.value = notificationPreferences.hasUnread()
-    }
-
-    fun setHasUnread() {
-        notificationPreferences.setUnread()
-        _hasUnreadNotifications.value = true
-    }
-
     // send notification for the user when they updated the profile
     fun storeProfileUpdateNotification() {
         val user = firebaseAuth.currentUser
@@ -81,7 +72,6 @@ class NotificationViewModel @Inject constructor(
                 .add(notificationData)
                 .addOnSuccessListener {
                     Log.d("ProfileViewModel", "Notification saved successfully!")
-                    setHasUnread()
                 }
                 .addOnFailureListener { e ->
                     Log.e("ProfileViewModel", "Error saving notification: $e")
@@ -107,7 +97,6 @@ class NotificationViewModel @Inject constructor(
                 .add(notificationData)
                 .addOnSuccessListener {
                     Log.d("NotificationViewModel", "Event creation notification saved.")
-                    setHasUnread()
                 }
                 .addOnFailureListener { e ->
                     Log.e("NotificationViewModel", "Failed to save event notification: $e")
@@ -159,10 +148,12 @@ class NotificationViewModel @Inject constructor(
             .addOnSuccessListener { document ->
                 // Get the community name and members
                 val communityName = document.getString("name") ?: "Unknown Community"
-                val members = document.get("members") as? List<String> ?: return@addOnSuccessListener
+                val members =
+                    document.get("members") as? List<String> ?: return@addOnSuccessListener
 
                 // This is the message of the event
-                val message = "A new event \"$eventName\" was created in the \"$communityName\" community."
+                val message =
+                    "A new event \"$eventName\" was created in the \"$communityName\" community."
 
                 // Iterate through members and store notifications
                 members.forEach { memberId ->
@@ -192,12 +183,80 @@ class NotificationViewModel @Inject constructor(
             }
     }
 
-}
+    // send notification to the creator of the post to notify them that someone liked the post
+    fun sendLikeNotification(post: Post) {
+        val recipientUserId = post.userId // The creator of the post
+        val likedByUserId =
+            post.likedBy.lastOrNull() // Get the last user who liked the post (or you can change to handle more users)
 
-data class Notification(
-    val id: String,
-    val message: String,
-    val timestamp: Date,
-    val userId: String,
-    val isRead: Boolean
-)
+        // Fetch the name of the user who liked the post
+        likedByUserId?.let { userId ->
+            FirebaseFirestore.getInstance()
+                .collection("User") // Assuming you have a Users collection where you store user info
+                .document(userId)
+                .get()
+                .addOnSuccessListener { userDocument ->
+                    val likerName = userDocument.getString("name")
+                        ?: "Someone" // Get the user's name (or fallback to "Someone")
+
+                    // Fetch the community name
+                    FirebaseFirestore.getInstance()
+                        .collection("Community") // Assuming you have a Community collection where community data is stored
+                        .document(post.communityId) // Use the communityId from the post
+                        .get()
+                        .addOnSuccessListener { communityDocument ->
+                            val communityName = communityDocument.getString("name")
+                                ?: "Unknown Community" // Get the community name
+
+                            // Create the notification message
+                            val message =
+                                "$likerName liked your post in the '$communityName' community."
+
+                            // Prepare the notification data
+                            val notificationData = mapOf(
+                                "message" to message,
+                                "timestamp" to FieldValue.serverTimestamp(),
+                                "userId" to recipientUserId,
+                                "isRead" to false // unread flag
+                            )
+
+                            // Store the notification data in Firestore
+                            FirebaseFirestore.getInstance()
+                                .collection("Notification")
+                                .add(notificationData)
+                                .addOnSuccessListener {
+                                    Log.d(
+                                        "NotificationViewModel",
+                                        "Like notification sent to $recipientUserId"
+                                    )
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e(
+                                        "NotificationViewModel",
+                                        "Failed to send like notification: $e"
+                                    )
+                                }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("NotificationViewModel", "Failed to fetch community info: $e")
+                        }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("NotificationViewModel", "Failed to fetch liker info: $e")
+                }
+        }
+    }
+
+    private fun observeUnreadNotifications() {
+        val userId = firebaseAuth.currentUser?.uid ?: return
+
+        FirebaseFirestore.getInstance()
+            .collection("Notification")
+            .whereEqualTo("userId", userId)
+            .whereEqualTo("isRead", false)
+            .addSnapshotListener { snapshot, _ ->
+                _hasUnreadNotifications.value = snapshot?.isEmpty == false
+            }
+    }
+
+}

@@ -21,7 +21,7 @@ import kotlinx.coroutines.tasks.await
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
 ) : ViewModel() {
 
     private val _posts = MutableStateFlow<List<Post>>(emptyList())
@@ -49,6 +49,8 @@ class HomeViewModel @Inject constructor(
     private val _hasCancelEvents = MutableStateFlow(false)
     val hasCancelEvents: StateFlow<Boolean> = _hasCancelEvents
 
+    private val _postLikedEvent = MutableStateFlow<String?>(null)
+    val postLikedEvent: StateFlow<String?> = _postLikedEvent
 
     private suspend fun getUserCommunityIds(userId: String): List<String> {
         return try {
@@ -121,7 +123,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-
     private suspend fun fetchCommunityNames(communityIds: List<String>) = coroutineScope {
         try {
             val namesList = communityIds.map { id ->
@@ -177,11 +178,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    // Like functionality: Increase likes in FireStore
     fun likePost(post: Post) {
         viewModelScope.launch {
             try {
-                val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+                val currentUserId = firebaseAuth.currentUser?.uid
                 if (currentUserId.isNullOrEmpty()) {
                     Log.e("HomeViewModel", "User not logged in")
                     return@launch
@@ -199,20 +199,16 @@ class HomeViewModel @Inject constructor(
                     .collection("posts")
                     .document(docId)
 
+                var postLikedUserId: String? = null
+                var updatedPost: Post? = null
+
                 firestore.runTransaction { transaction ->
                     val snapshot = transaction.get(postRef)
-
-                    val currentLikes = snapshot.getLong("likes") ?: 0
                     val likedBy = snapshot.get("likedBy") as? List<String> ?: emptyList()
 
                     val isLiked = currentUserId in likedBy
-
-                    val newLikedBy = if (isLiked) {
-                        likedBy - currentUserId
-                    } else {
-                        likedBy + currentUserId
-                    }
-
+                    val newLikedBy =
+                        if (isLiked) likedBy - currentUserId else likedBy + currentUserId
                     val newLikes = newLikedBy.size
 
                     transaction.update(
@@ -222,25 +218,38 @@ class HomeViewModel @Inject constructor(
                         )
                     )
 
-                    val updatedPost = post.copy(
+                    updatedPost = post.copy(
                         likes = newLikes,
                         likedBy = newLikedBy
                     )
 
-                    _posts.value = _posts.value.map {
-                        if (it == post) updatedPost else it
-                    }
-
-                    _postDocumentIds.value = _postDocumentIds.value.toMutableMap().apply {
-                        remove(post)
-                        put(updatedPost, docId)
+                    // Prepare to emit after transaction finishes
+                    if (!isLiked && post.userId != currentUserId) {
+                        postLikedUserId = post.userId
                     }
                 }.await()
+
+                // Update local state after transaction
+                updatedPost?.let {
+                    _posts.value = _posts.value.map { existing ->
+                        if (existing == post) it else existing
+                    }
+                    _postDocumentIds.value = _postDocumentIds.value.toMutableMap().apply {
+                        remove(post)
+                        put(it, docId)
+                    }
+                }
+
+                postLikedUserId?.let {
+                    _postLikedEvent.emit(it)
+                }
+
             } catch (e: Exception) {
                 Log.e("HomeViewModel", "Failed to like post: ${e.message}")
             }
         }
     }
+
     fun fetchPostsByUser(userId: String) {
         viewModelScope.launch {
             _loading.value = true
@@ -329,5 +338,6 @@ class HomeViewModel @Inject constructor(
     fun resetCancelButton() {
         _hasCancelEvents.value = false
     }
+
 
 }

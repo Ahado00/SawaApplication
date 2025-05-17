@@ -40,6 +40,7 @@ import coil.compose.AsyncImage
 import com.example.sawaapplication.navigation.Screen
 import com.example.sawaapplication.R
 import com.example.sawaapplication.screens.post.domain.model.Post
+import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -57,8 +58,12 @@ fun PostCard(
     modifier: Modifier = Modifier
 ) {
     // State to track if the post is liked
-//    var isLiked by remember { mutableStateOf(false) }
-    var isLiked by remember { mutableStateOf(post.likes > 0) }
+
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+    var isLiked by remember(post.likedBy) {
+        mutableStateOf(currentUserId != null && currentUserId in post.likedBy)
+    }
+
 
     // Set icon color based on like state
     val likeIconColor = if (isLiked) Color.Red else Color.Gray
@@ -93,7 +98,10 @@ fun PostCard(
                         color = Color.Gray,
                         shape = RoundedCornerShape(integerResource(R.integer.boxRoundedCornerShape).dp)
                     )
-                    .padding(horizontal = integerResource(R.integer.smallerSpace).dp, vertical = integerResource(R.integer.extraSmallSpace).dp)
+                    .padding(
+                        horizontal = integerResource(R.integer.smallerSpace).dp,
+                        vertical = integerResource(R.integer.extraSmallSpace).dp
+                    )
             ) {
                 Text(
                     text = communityName,
@@ -117,7 +125,8 @@ fun PostCard(
                             .size(integerResource(R.integer.asyncImageSize).dp)
                             .clip(CircleShape)
                             .clickable {
-                                navController.navigate(Screen.UserAccount.createRoute(userId = post.userId)) }
+                                navController.navigate(Screen.UserAccount.createRoute(userId = post.userId))
+                            }
 
                     )
                 }

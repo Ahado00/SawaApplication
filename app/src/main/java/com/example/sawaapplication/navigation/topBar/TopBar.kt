@@ -137,10 +137,6 @@ fun getTopBar(
 
     val hasUnread = notificationViewModel.hasUnreadNotifications.collectAsState().value
 
-    LaunchedEffect(currentRoute) {
-        notificationViewModel.checkUnreadStatus()
-    }
-
     return when (currentRoute) {
         Screen.Community.route -> {
             {
