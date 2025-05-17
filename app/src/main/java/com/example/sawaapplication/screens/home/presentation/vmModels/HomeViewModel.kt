@@ -89,22 +89,28 @@ class HomeViewModel @Inject constructor(
                 val postsList = mutableListOf<Post>()
                 val docIdMap = mutableMapOf<Post, String>()
 
-                userCommunityIds.forEach { communityId ->
-                    val postSnapshot = firestore
-                        .collection("Community")
-                        .document(communityId)
-                        .collection("posts")
-                        .get()
-                        .await()
+                // Fetch posts concurrently for each community
+                val postDeferreds = userCommunityIds.map { communityId ->
+                    async {
+                        val postSnapshot = firestore
+                            .collection("Community")
+                            .document(communityId)
+                            .collection("posts")
+                            .get()
+                            .await()
 
-                    for (doc in postSnapshot.documents) {
-                        val post = doc.toObject(Post::class.java)
-                        if (post != null) {
-                            postsList.add(post)
-                            docIdMap[post] = doc.id
+                        postSnapshot.documents.forEach { doc ->
+                            val post = doc.toObject(Post::class.java)
+                            if (post != null) {
+                                postsList.add(post)
+                                docIdMap[post] = doc.id
+                            }
                         }
                     }
                 }
+
+                // Await all post fetching operations to finish
+                postDeferreds.awaitAll()
 
                 _posts.value = postsList
                 _postDocumentIds.value = docIdMap
@@ -112,8 +118,13 @@ class HomeViewModel @Inject constructor(
                 val communityIds = postsList.map { it.communityId }.distinct()
                 val userIds = postsList.map { it.userId }.distinct()
 
-                fetchCommunityNames(communityIds)
-                fetchUserDetails(userIds)
+                // Fetch community names and user details concurrently
+                val communityNamesDeferred = async { fetchCommunityNames(communityIds) }
+                val userDetailsDeferred = async { fetchUserDetails(userIds) }
+
+                // Await all community and user details fetches
+                communityNamesDeferred.await()
+                userDetailsDeferred.await()
 
             } catch (e: Exception) {
                 _error.value = e.message
@@ -308,24 +319,29 @@ class HomeViewModel @Inject constructor(
                 val userId = firebaseAuth.currentUser?.uid ?: return@launch
                 val communityIds = getUserCommunityIds(userId)
 
-                val joinedEventsList = mutableListOf<Event>()
+                val joinedEventsDeferred = communityIds.map { communityId ->
+                    async {
+                        val eventsSnapshot = firestore.collection("Community")
+                            .document(communityId)
+                            .collection("event")
+                            .get()
+                            .await()
 
-                for (communityId in communityIds) {
-                    val eventsSnapshot = firestore.collection("Community")
-                        .document(communityId)
-                        .collection("event")
-                        .get()
-                        .await()
-
-                    for (doc in eventsSnapshot.documents) {
-                        val event = doc.toObject(Event::class.java)
-                        if (event != null && userId in event.joinedUsers) {
-                            joinedEventsList.add(event.copy(id = doc.id, communityId = communityId))
+                        val events = eventsSnapshot.documents.mapNotNull { doc ->
+                            val event = doc.toObject(Event::class.java)
+                            if (event != null && userId in event.joinedUsers) {
+                                event.copy(id = doc.id, communityId = communityId)
+                            } else {
+                                null
+                            }
                         }
+                        events
                     }
                 }
 
-                _joinedEvents.value = joinedEventsList
+                // Await all joined events fetches
+                val eventsList = joinedEventsDeferred.awaitAll().flatten()
+                _joinedEvents.value = eventsList
 
             } catch (e: Exception) {
                 Log.e("HomeViewModel", "Error fetching joined events: ${e.message}")
