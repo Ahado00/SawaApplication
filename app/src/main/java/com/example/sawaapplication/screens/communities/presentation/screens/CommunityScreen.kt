@@ -285,7 +285,7 @@ fun CommunityScreen(
 
                         //Go to chat button
                         OutlinedButton(
-                            onClick = { /* TODO: Handle Join */ },
+                            onClick = { navController.navigate("chat/${communityId}") },
                             shape = RoundedCornerShape(integerResource(R.integer.roundedCornerShapeCircle)),
                             border = BorderStroke(
                                 integerResource(R.integer.buttonStroke).dp,
