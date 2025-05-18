@@ -18,7 +18,10 @@ class LogOutViewModel @Inject constructor(
      fun preformLogOut(navController: NavController){
         logOutUseCase.invoke()
         preferenceManager.clearToken()
-        navController.navigate(Screen.Login.route)
+        navController.navigate(Screen.Login.route){
+            popUpTo(0) { inclusive = true } // This clears the whole backstack
+            launchSingleTop = true          // Prevents duplicate LoginScreen
+        }
     }
 
 }
