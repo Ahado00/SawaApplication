@@ -306,7 +306,7 @@ fun EditProfileScreen(
                             onSuccess = {
                                 viewModel.updateName(name)
                                 viewModel.updateAboutMe(about)
-                                notificationViewModel.storeProfileUpdateNotification() // Store notification
+                                notificationViewModel.notifyProfileUpdate() // Store notification
                                 Toast.makeText(
                                     context,
                                     "Saved Successfully!",
@@ -326,7 +326,7 @@ fun EditProfileScreen(
                     } else {
                         viewModel.updateName(name)
                         viewModel.updateAboutMe(about)
-                        notificationViewModel.storeProfileUpdateNotification() // Store notification
+                        notificationViewModel.notifyProfileUpdate() // Store notification
                         Toast.makeText(context, "Saved Successfully!", Toast.LENGTH_SHORT)
                             .show()
                         navController.popBackStack()

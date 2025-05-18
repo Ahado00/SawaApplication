@@ -13,10 +13,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -109,20 +112,28 @@ class HomeViewModel @Inject constructor(
                     }
                 }
 
-                // Await all post fetching operations to finish
                 postDeferreds.awaitAll()
 
-                _posts.value = postsList
+                val sortedPosts = postsList.sortedByDescending { post ->
+                    try {
+                        val dateFormat = SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH)
+                        dateFormat.parse(post.createdAt)
+                    } catch (e: Exception) {
+                        // If the date format is incorrect, log the error and keep original post order
+                        Log.e("HomeViewModel", "Error parsing date for post: ${post.createdAt}")
+                        null
+                    }
+                }
+
+                _posts.value = sortedPosts
                 _postDocumentIds.value = docIdMap
 
-                val communityIds = postsList.map { it.communityId }.distinct()
-                val userIds = postsList.map { it.userId }.distinct()
+                val communityIds = sortedPosts.map { it.communityId }.distinct()
+                val userIds = sortedPosts.map { it.userId }.distinct()
 
-                // Fetch community names and user details concurrently
                 val communityNamesDeferred = async { fetchCommunityNames(communityIds) }
                 val userDetailsDeferred = async { fetchUserDetails(userIds) }
 
-                // Await all community and user details fetches
                 communityNamesDeferred.await()
                 userDetailsDeferred.await()
 
@@ -133,7 +144,6 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-
     private suspend fun fetchCommunityNames(communityIds: List<String>) = coroutineScope {
         try {
             val namesList = communityIds.map { id ->

@@ -32,7 +32,7 @@ fun NotificationScreen(
     val notifications = notificationViewModel.notifications.collectAsState().value
 
     LaunchedEffect(Unit) {
-        notificationViewModel.markNotificationsAsSeen()
+        notificationViewModel.markAsRead()
     }
 
     Column(

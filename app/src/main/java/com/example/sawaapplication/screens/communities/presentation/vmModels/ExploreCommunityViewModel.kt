@@ -25,8 +25,8 @@ class ExploreCommunityViewModel @Inject constructor(
 ) : ViewModel() {
     val currentUserId = firebaseAuth.currentUser?.uid ?: ""
 
-    @Inject lateinit var leaveCommunityUseCase: LeaveCommunityUseCase
-
+    @Inject
+    lateinit var leaveCommunityUseCase: LeaveCommunityUseCase
 
     var searchText by mutableStateOf("")
     var communities by mutableStateOf<List<Community>>(emptyList())
@@ -36,6 +36,8 @@ class ExploreCommunityViewModel @Inject constructor(
 
     private val _error = mutableStateOf<String?>(null)
     val error: String? get() = _error.value
+
+    var selectedFilter by mutableStateOf(CommunityFilterType.DEFAULT)
 
     init {
         fetchCommunities()
@@ -75,7 +77,9 @@ class ExploreCommunityViewModel @Inject constructor(
             }
         }
     }
-    @Inject lateinit var joinCommunityUseCase: JoinCommunityUseCase
+
+    @Inject
+    lateinit var joinCommunityUseCase: JoinCommunityUseCase
 
     fun joinCommunity(communityId: String, userId: String) {
         viewModelScope.launch {
@@ -88,6 +92,7 @@ class ExploreCommunityViewModel @Inject constructor(
             }
         }
     }
+
     fun leaveCommunity(communityId: String, userId: String) {
         viewModelScope.launch {
             val result = leaveCommunityUseCase(communityId, userId)
@@ -99,6 +104,7 @@ class ExploreCommunityViewModel @Inject constructor(
             }
         }
     }
+
     fun resetJoinLeaveState() {
         _hasJoinedOrLeft.value = false
     }
@@ -108,8 +114,26 @@ class ExploreCommunityViewModel @Inject constructor(
     }
 
     val filteredCommunities: List<Community>
-        get() = if (searchText.isBlank()) communities
-        else communities.filter {
-            it.name.contains(searchText, ignoreCase = true)
+        get() {
+            val baseList = if (searchText.isBlank()) communities
+            else communities.filter { it.name.contains(searchText, ignoreCase = true) }
+
+            return when (selectedFilter) {
+                CommunityFilterType.MOST_POPULAR ->
+                    baseList.sortedByDescending { it.members.size }
+
+                CommunityFilterType.MOST_RECENT ->
+                    baseList.sortedByDescending { it.createdAt.toLongOrNull() ?: 0L }
+
+                CommunityFilterType.DEFAULT ->
+                    baseList.sortedBy { it.createdAt.toLongOrNull() ?: Long.MAX_VALUE }
+            }
         }
+
+}
+
+enum class CommunityFilterType {
+    DEFAULT,
+    MOST_POPULAR,
+    MOST_RECENT
 }

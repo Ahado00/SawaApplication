@@ -18,6 +18,9 @@ import com.example.sawaapplication.screens.communities.domain.useCases.GetUserCr
 import com.example.sawaapplication.screens.event.data.dataSources.EventInCommunityRemote
 import com.example.sawaapplication.screens.event.data.repository.EventRepositoryImpl
 import com.example.sawaapplication.screens.event.domain.repository.EventRepository
+import com.example.sawaapplication.screens.notification.data.dataSources.NotificationRemoteDataSource
+import com.example.sawaapplication.screens.notification.data.repository.NotificationRepositoryImpl
+import com.example.sawaapplication.screens.notification.domain.repository.NotificationRepository
 import com.example.sawaapplication.screens.post.data.dataSources.remote.PostsInCommunityRemote
 import com.example.sawaapplication.screens.post.data.repository.PostRepositoryImpl
 import com.example.sawaapplication.screens.post.domain.repository.PostRepository
@@ -111,6 +114,26 @@ object AppModule {
     ): EventRepository {
         return EventRepositoryImpl(remoteDataSource)
     }
+
+    @Provides
+    fun provideNotificationRemoteDataSource(
+        firestore: FirebaseFirestore,
+        firebaseAuth: FirebaseAuth
+    ): NotificationRemoteDataSource {
+        return NotificationRemoteDataSource(
+            firestore,
+            firebaseAuth
+        )
+    }
+
+    @Provides
+    fun provideNotificationRepository(
+        remoteDataSource: NotificationRemoteDataSource,
+        firebaseAuth: FirebaseAuth
+    ): NotificationRepository {
+        return NotificationRepositoryImpl(remoteDataSource, firebaseAuth)
+    }
+
 
     /**
      * Add two provides

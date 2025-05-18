@@ -71,7 +71,6 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import java.text.DateFormat
 import java.util.Date
 
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun CreateNewEventScreen(
@@ -153,10 +152,10 @@ fun CreateNewEventScreen(
         viewModel.communityId = communityId
         if (success) {
             // Notify creator about the event creation
-            notificationViewModel.storeEventCreatedNotification(viewModel.name)
+            notificationViewModel.notifyEventCreated(viewModel.name)
 
             // Notify community members about the new event
-            notificationViewModel.notifyCommunityMembersOfNewEvent(
+            notificationViewModel.notifyCommunityMembers(
                 communityId = communityId,
                 eventName = viewModel.name
             )

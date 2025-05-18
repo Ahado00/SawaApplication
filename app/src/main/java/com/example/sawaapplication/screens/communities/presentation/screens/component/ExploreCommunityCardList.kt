@@ -3,6 +3,7 @@ package com.example.sawaapplication.screens.communities.presentation.screens.com
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,11 +21,14 @@ import androidx.compose.foundation.lazy.items
 fun ExploreCommunityCardList(
     communities: List<Community>,
     currentUserId: String,
+    listState: LazyListState,
     onCommunityClick: (String) -> Unit,
     onJoinClick: (String) -> Unit,
     onLeaveClick: (String) -> Unit
 ) {
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
+    LazyColumn(
+        state = listState,
+        modifier = Modifier.fillMaxSize()) {
         items(communities, key = { it.id }) { community ->
             val isJoined = currentUserId in community.members
 

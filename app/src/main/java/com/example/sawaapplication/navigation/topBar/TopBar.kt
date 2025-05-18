@@ -168,7 +168,7 @@ fun getTopBar(
                     hasUnread = hasUnread,
                     onProfileClick = { navController.navigate(Screen.Profile.route) },
                     onNotificationClick = {
-                        notificationViewModel.markNotificationsAsSeen()
+                        notificationViewModel.markAsRead()
                         navController.navigate(Screen.Notification.route)
                     }
                 )
@@ -249,7 +249,7 @@ fun getTopBar(
                     hasUnread = hasUnread,
                     onProfileClick = { navController.navigate(Screen.Profile.route) },
                     onNotificationClick = {
-                        notificationViewModel.markNotificationsAsSeen()
+                        notificationViewModel.markAsRead()
                         navController.navigate(Screen.Notification.route)
                     }
                 )
