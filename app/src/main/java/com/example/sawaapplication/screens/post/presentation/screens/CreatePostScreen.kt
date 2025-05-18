@@ -123,7 +123,12 @@ fun CreatePostScreen(
             Button(
                 onClick = {
                     viewModel.createPost(communityId)
-                    navController.navigate("community_screen/$communityId")
+                    navController.navigate("community_screen/$communityId"){
+                        popUpTo("create_post/$communityId") {//make sure to remove "create post screen" from the stack
+                            inclusive = true
+                        }
+                        launchSingleTop = true // make sure only one instance of "CommunityScreen" is in the stack
+                    }
                 },
             ) { Text(stringResource(R.string.post)) }
 

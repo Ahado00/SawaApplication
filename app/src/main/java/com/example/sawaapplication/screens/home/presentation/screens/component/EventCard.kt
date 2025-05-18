@@ -225,7 +225,7 @@ fun JoinButton(
     ) {
         Text(
             text = when {
-                isCancelVisible -> "Cancel"
+                isCancelVisible -> "Leave"
                 joined -> "Joined"
                 else -> "Join"
             },

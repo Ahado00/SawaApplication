@@ -41,6 +41,7 @@
     <string name="save">Save</string>
     <string name="search">Search</string>
     <string name="join">Join</string>
+    <string name="leave">Leave</string>
     <string name="joined">Joined</string>
     <string name="logout">Logout</string>
     <string name="name">Name</string>
