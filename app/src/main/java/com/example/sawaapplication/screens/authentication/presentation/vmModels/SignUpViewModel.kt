@@ -10,6 +10,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
+import com.example.sawaapplication.navigation.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -64,14 +66,12 @@ class SignUpViewModel @Inject constructor(
 fun handleAuthStateSignUp(
     authState: AuthState,
     context: Context,
-  //  navController: NavController
+    navController: NavController
 ) {
     when (authState) {
         is AuthState.Authenticated -> {
             Toast.makeText(context, "Sign-Up successfully", Toast.LENGTH_SHORT).show()
-//            navController.navigate(Screen.Home) {
-//                popUpTo(Screen.Login) { inclusive = true }
-//            }
+            navController.navigate(Screen.Login.route)
         }
 
         is AuthState.Error -> {

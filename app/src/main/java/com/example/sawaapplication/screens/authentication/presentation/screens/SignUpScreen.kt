@@ -51,7 +51,7 @@ fun SignUpScreen(
     val authState = signUpViewModel.authState.collectAsState().value
 
     LaunchedEffect(authState) {
-        handleAuthStateSignUp(authState, context)// Add navController argument when navigation is finished
+        handleAuthStateSignUp(authState, context,navController)// Add navController argument when navigation is finished
 
     }
 
@@ -128,6 +128,7 @@ fun SignUpScreen(
                             password = signUpViewModel.password,
                             confirmPassword = signUpViewModel.confirmPassword
                         )
+
                     },
                     text = stringResource(id = R.string.Signup),
                     modifier = Modifier.padding(top= integerResource(id = R.integer.largeSpace).dp,bottom = integerResource(id = R.integer.mediumSpace).dp)
