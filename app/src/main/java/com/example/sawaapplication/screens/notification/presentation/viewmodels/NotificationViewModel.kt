@@ -183,7 +183,7 @@ class NotificationViewModel @Inject constructor(
             }
     }
 
-    // send notification to the creator of the post to notify them that someone liked the post
+    // send notification to the creator of the post to notify them that someone liked the post.
     fun sendLikeNotification(post: Post) {
         val recipientUserId = post.userId // The creator of the post
         val likedByUserId =
