@@ -76,6 +76,7 @@ class PostsInCommunityRemote @Inject constructor(
                 val profileImage = userSnapshot.getString("profileImage") ?: ""
 
                 PostUiModel(
+                    id = post.id,
                     username = userName,
                     userAvatarUrl = profileImage,
                     postImageUrl = post.imageUri,

@@ -146,6 +146,7 @@ class CommunityViewModel @Inject constructor(
             result.onSuccess { posts ->
                 val mapped = posts.map { post ->
                     PostUiModel(
+                        id = post.id,
                         username = post.username,         // Use userId as username placeholder
                         userAvatarUrl = post.userAvatarUrl,             // TODO: Replace with real profile image
                         postImageUrl = post.postImageUrl,

@@ -1,6 +1,7 @@
 package com.example.sawaapplication.navigation
 
 import kotlinx.serialization.Serializable
+import java.net.URLEncoder
 
 @Serializable
 sealed class Screen(val route: String) {
@@ -26,6 +27,11 @@ sealed class Screen(val route: String) {
         fun createRoute(userId: String) = "profile/$userId"
     }
 
+    @Serializable
+    data object FullscreenImage : Screen("fullscreen/{imageUrl}") {
+        fun createRoute(imageUrl: String): String =
+            "fullscreen/${URLEncoder.encode(imageUrl, "utf-8")}"
+    }
     //    @Serializable
 //    data object CreateNewEvent : Screen("create_event/{communityId}") {
 //        fun passCommunityId(communityId: String): String {

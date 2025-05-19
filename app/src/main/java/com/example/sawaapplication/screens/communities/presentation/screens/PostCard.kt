@@ -1,6 +1,7 @@
 package com.example.sawaapplication.screens.communities.presentation.screens
 
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,7 +41,7 @@ import com.example.sawaapplication.ui.theme.black
 import com.example.sawaapplication.ui.theme.white
 
 @Composable
-fun PostCard(post: PostUiModel) {
+fun PostCard(post: PostUiModel,  onImageClick: (String) -> Unit) {
     var isLiked by remember { mutableStateOf(false) }
     var likeCount by remember { mutableStateOf(21) }
 
@@ -89,7 +90,9 @@ fun PostCard(post: PostUiModel) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(180.dp)
-                        .clip(RoundedCornerShape(12.dp)),
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable { onImageClick(post.postImageUrl) },
+
                     contentScale = ContentScale.Crop
                 )
                 Spacer(Modifier.height(8.dp))

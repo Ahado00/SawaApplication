@@ -40,6 +40,7 @@ class PostRepositoryImpl @Inject constructor(
                 Log.d("PostRepo", "Loaded post (id=${doc.id}) → user=$username, content=$content")
                 // 3) Map into PostUiModel
                 PostUiModel(
+                    id = post.id,
                     username      = userDoc.getString("name") ?: "Unknown",
                     userAvatarUrl = userDoc.getString("image") ?: "",
                     postImageUrl  = post.imageUri,

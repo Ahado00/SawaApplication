@@ -79,7 +79,7 @@ import com.example.sawaapplication.ui.theme.PrimaryOrange
 import com.example.sawaapplication.ui.theme.black
 import com.example.sawaapplication.ui.theme.white
 import com.google.firebase.auth.FirebaseAuth
-
+import java.net.URLEncoder
 
 
 data class CommunityUiState(
@@ -90,24 +90,24 @@ data class CommunityUiState(
     val posts: List<PostUiModel>
 )
 
-private val FakeCommunityUiState = CommunityUiState(
-    logoUrl = "",
-    communityName = "Saudi Innovation",
-    membersCount = "2.5M",
-    communityDescription = "This community fosters innovation across Saudi Arabia...",
-    posts = listOf(
-        PostUiModel(
-            "@mohammed1",
-            userAvatarUrl = "https://i.pravatar.cc/150?img=1",
-            postImageUrl = ""
-        ),
-        PostUiModel(
-            "@ahmed2",
-            userAvatarUrl = "https://i.pravatar.cc/150?img=2",
-            postImageUrl = "https://images.unsplash.com/photo-1593642634367-d91a135587b5"
-        )
-    )
-)
+//private val FakeCommunityUiState = CommunityUiState(
+//    logoUrl = "",
+//    communityName = "Saudi Innovation",
+//    membersCount = "2.5M",
+//    communityDescription = "This community fosters innovation across Saudi Arabia...",
+//    posts = listOf(
+//        PostUiModel(
+//            "@mohammed1",
+//            userAvatarUrl = "https://i.pravatar.cc/150?img=1",
+//            postImageUrl = ""
+//        ),
+//        PostUiModel(
+//            "@ahmed2",
+//            userAvatarUrl = "https://i.pravatar.cc/150?img=2",
+//            postImageUrl = "https://images.unsplash.com/photo-1593642634367-d91a135587b5"
+//        )
+//    )
+//)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -117,12 +117,12 @@ fun CommunityScreen(
     eventViewModel: FetchEventViewModel = hiltViewModel(),
     joinCommunityViewModel: ExploreCommunityViewModel = hiltViewModel(),
     onBackPressed: () -> Unit,
-    onClick: () -> Unit,
+    onClick: (String) -> Unit,
     navController: NavHostController
 ) {
     val context = LocalContext.current
     val fetchEventViewModel: FetchEventViewModel = hiltViewModel()
-    val uiState = FakeCommunityUiState
+//    val uiState = FakeCommunityUiState
     val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf(stringResource(R.string.posts), stringResource(R.string.events))
@@ -370,11 +370,17 @@ fun CommunityScreen(
                 items(posts) { post ->
                     PostCard(
                         post = PostUiModel(
-                            username = post.username,
+                            id = post.id,
+                            username      = post.username,
                             userAvatarUrl = post.userAvatarUrl,
-                            postImageUrl = post.postImageUrl,
-                            content = post.content
-                        )
+                            postImageUrl  = post.postImageUrl,
+                            content       = post.content
+                        ),
+                        onImageClick = { imageUrl ->
+                            Log.d("FULLSCREEN", "Image URL passed: $imageUrl")
+                            val encoded = URLEncoder.encode(imageUrl, "utf-8")
+                            onClick(encoded) // this triggers navigation to fullscreen screen
+                        }
                     )
 
                 }

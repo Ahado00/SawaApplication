@@ -67,6 +67,10 @@ import com.example.sawaapplication.screens.profile.screens.EditProfileScreen
 import com.example.sawaapplication.screens.profile.screens.ProfileScreen
 import com.example.sawaapplication.screens.profile.screens.UserAccount
 import com.example.sawaapplication.screens.profile.vm.ProfileViewModel
+import java.net.URLDecoder
+import com.example.sawaapplication.screens.post.presentation.screens.FullscreenImageScreen
+
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -122,6 +126,23 @@ fun AppNavigation(
             startDestination = if (tokenState.isNullOrEmpty()) Screen.SplashScreen.route else Screen.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
+//            composable(
+//                route = "community_screen/{communityId}",
+//                arguments = listOf(navArgument("communityId") { type = NavType.StringType })
+//            ) { backStackEntry ->
+//                val communityId = backStackEntry.arguments?.getString("communityId") ?: ""
+//                CommunityScreen(
+//                    communityId = communityId,
+//                    onBackPressed = { navController.popBackStack() },
+//                    onClick = { imageUrl ->
+//                        val encoded = URLEncoder.encode(imageUrl, "utf-8")
+//                        navController.navigate( FullscreenImage.createRoute(encoded) )
+//                    },
+//                    navController = navController
+//                )
+//            }
+
+
             composable(Screen.SplashScreen.route) {
                 SplashScreen(navController)
             }
@@ -187,21 +208,40 @@ fun AppNavigation(
                 )
             }
 
+            // 1) Community detail
             composable(
                 route = "community_screen/{communityId}",
                 arguments = listOf(navArgument("communityId") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val communityId = backStackEntry.arguments?.getString("communityId") ?: ""
-                Log.d("DEBUG", "Navigation received communityId: $communityId")
-
-                // Pass communityId to the CommunityScreen composable
+            ) {
+                val communityId = it.arguments!!.getString("communityId")!!
                 CommunityScreen(
-                    communityId = communityId,
-                    onBackPressed = { navController.popBackStack() },
-                    onClick = { },
-                    navController = navController
+                    communityId    = communityId,
+                    onBackPressed  = { navController.popBackStack() },
+                    onClick   = { imageUrl  ->
+
+                        navController.navigate(Screen.FullscreenImage.createRoute(imageUrl))
+                    },
+                    navController  = navController
                 )
             }
+
+
+// 2) Full-screen by postId
+            composable(
+                route = Screen.FullscreenImage.route,
+                arguments = listOf(navArgument("imageUrl") { type = NavType.StringType })
+            ) { backStack ->
+                val encoded = backStack.arguments!!.getString("imageUrl")!!
+                val decoded = URLDecoder.decode(encoded, "utf-8")
+
+                FullscreenImageScreen(
+                    imageUrl = decoded,
+                    onDismiss = { navController.popBackStack() }
+                )
+            }
+
+
+
 
             composable("create_event/{communityId}") { backStackEntry ->
                 val communityId = backStackEntry.arguments?.getString("communityId") ?: ""
