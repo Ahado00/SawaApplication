@@ -43,11 +43,6 @@ import com.example.sawaapplication.screens.notification.presentation.viewmodels.
 import com.example.sawaapplication.ui.screenComponent.CustomConfirmationDialog
 import com.example.sawaapplication.utils.getCityNameFromGeoPoint
 import com.google.firebase.auth.FirebaseAuth
-import androidx.compose.ui.res.stringResource
-import com.example.sawaapplication.screens.event.presentation.screens.formatDateString
-import com.example.sawaapplication.screens.event.presentation.screens.formatTimestampToTimeString
-import com.example.sawaapplication.utils.getCityNameFromGeoPoint
-import com.example.sawaapplication.screens.notification.presentation.viewmodels.NotificationViewModel
 
 @Composable
 fun HomeScreen(
@@ -63,7 +58,7 @@ fun HomeScreen(
             0 -> PostsTab(viewModel, navController)
             1 -> MyEventsTab() // implement if needed
         }
-
+//
         // Top transparent tab row
         Box(
             modifier = Modifier
@@ -170,9 +165,6 @@ fun MyEventsTab(
     val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     val joinResult by eventViewModel.joinResult.collectAsState()
 
-    // Fetch community names
-    val communityNames by viewModel.communityNames.collectAsState()
-
 
     var showLeaveEventDialog by remember { mutableStateOf(false) }
     var selectedEventId by remember { mutableStateOf<String?>(null) }
@@ -209,7 +201,6 @@ fun MyEventsTab(
                     val timeFormatted = event.time?.let { formatTimestampToTimeString(it) } ?: "No time set"
                     val formattedDate = formatDateString(event.date)
                     val context = LocalContext.current
-
                     EventCard(
                         image = event.imageUri,
                         title = event.title,
@@ -233,27 +224,6 @@ fun MyEventsTab(
 
                 }
             }
-        }
-        //Dialog for confirm leaving an event
-        if (showLeaveEventDialog && selectedEventId != null && selectedCommunityId != null) {
-            CustomConfirmationDialog(
-                message = stringResource(R.string.areYouSureEvent),
-                onConfirm = {
-                    eventViewModel.leaveEvent(
-                        communityId = selectedCommunityId!!,
-                        eventId = selectedEventId!!,
-                        userId = userId
-                    )
-                    showLeaveEventDialog = false
-                    selectedEventId = null
-                    selectedCommunityId = null
-                },
-                onDismiss = {
-                    showLeaveEventDialog = false
-                    selectedEventId = null
-                    selectedCommunityId = null
-                }
-            )
         }
         //Dialog for confirm leaving an event
         if (showLeaveEventDialog && selectedEventId != null && selectedCommunityId != null) {
