@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -31,6 +32,8 @@ import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.sawaapplication.R
+import com.example.sawaapplication.screens.event.presentation.screens.formatDateString
+import com.example.sawaapplication.screens.event.presentation.screens.formatTimestampToTimeString
 import com.example.sawaapplication.screens.event.presentation.vmModels.FetchEventViewModel
 import com.example.sawaapplication.screens.home.presentation.screens.component.CustomTabRow
 import com.example.sawaapplication.screens.home.presentation.screens.component.EventCard
@@ -38,6 +41,7 @@ import com.example.sawaapplication.screens.home.presentation.screens.component.P
 import com.example.sawaapplication.screens.home.presentation.vmModels.HomeViewModel
 import com.example.sawaapplication.screens.notification.presentation.viewmodels.NotificationViewModel
 import com.example.sawaapplication.ui.screenComponent.CustomConfirmationDialog
+import com.example.sawaapplication.utils.getCityNameFromGeoPoint
 import com.google.firebase.auth.FirebaseAuth
 import androidx.compose.ui.res.stringResource
 import com.example.sawaapplication.screens.event.presentation.screens.formatDateString
@@ -173,6 +177,7 @@ fun MyEventsTab(
     var showLeaveEventDialog by remember { mutableStateOf(false) }
     var selectedEventId by remember { mutableStateOf<String?>(null) }
     var selectedCommunityId by remember { mutableStateOf<String?>(null) }
+    val communityNames by viewModel.communityNames.collectAsState() // fetch community names
 
     LaunchedEffect(Unit) {
         viewModel.fetchJoinedEvents()
