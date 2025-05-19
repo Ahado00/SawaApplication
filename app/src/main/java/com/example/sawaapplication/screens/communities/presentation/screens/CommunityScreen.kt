@@ -81,6 +81,8 @@ import com.example.sawaapplication.ui.theme.white
 import com.google.firebase.auth.FirebaseAuth
 import java.net.URLEncoder
 
+
+
 data class CommunityUiState(
     val logoUrl: String,
     val communityName: String,
