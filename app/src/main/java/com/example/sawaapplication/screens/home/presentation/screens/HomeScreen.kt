@@ -169,6 +169,11 @@ fun MyEventsTab(
     // Fetch community names
     val communityNames by viewModel.communityNames.collectAsState()
 
+
+    var showLeaveEventDialog by remember { mutableStateOf(false) }
+    var selectedEventId by remember { mutableStateOf<String?>(null) }
+    var selectedCommunityId by remember { mutableStateOf<String?>(null) }
+
     LaunchedEffect(Unit) {
         viewModel.fetchJoinedEvents()
     }
@@ -223,6 +228,27 @@ fun MyEventsTab(
 
                 }
             }
+        }
+        //Dialog for confirm leaving an event
+        if (showLeaveEventDialog && selectedEventId != null && selectedCommunityId != null) {
+            CustomConfirmationDialog(
+                message = stringResource(R.string.areYouSureEvent),
+                onConfirm = {
+                    eventViewModel.leaveEvent(
+                        communityId = selectedCommunityId!!,
+                        eventId = selectedEventId!!,
+                        userId = userId
+                    )
+                    showLeaveEventDialog = false
+                    selectedEventId = null
+                    selectedCommunityId = null
+                },
+                onDismiss = {
+                    showLeaveEventDialog = false
+                    selectedEventId = null
+                    selectedCommunityId = null
+                }
+            )
         }
         //Dialog for confirm leaving an event
         if (showLeaveEventDialog && selectedEventId != null && selectedCommunityId != null) {
