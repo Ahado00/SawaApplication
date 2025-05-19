@@ -72,6 +72,7 @@
     <string name="events">Events</string>
     <string name="chat">Chat</string>
     <string name="joinCommunity">Join Community</string>
+    <string name="areYouSureEvent">Are you sure you want to leave this event?</string>
 
     <!-- Chats Screen-->
     <string name="chats">Chats</string>

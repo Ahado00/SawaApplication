@@ -73,6 +73,7 @@
     <string name="events">الأحداث</string>
     <string name="chat">المحادثات</string>
     <string name="joinCommunity">إنضم للمجتمع</string>
+    <string name="areYouSureEvent">هل أنت متأكد من رغبتك في مغادرة الحدث؟</string>
 
     <!-- Chats Screen-->
     <string name="chats">المحادثات</string>
@@ -118,5 +119,6 @@
     <!--CustomConfirmationDialog-->
     <string name="yesImSure">نعم، متأكد</string>
     <string name="no">لا</string>
+
 
 </resources>

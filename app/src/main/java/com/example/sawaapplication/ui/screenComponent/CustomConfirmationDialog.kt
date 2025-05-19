@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -29,13 +30,13 @@ fun CustomConfirmationDialog(
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Surface(
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(integerResource(R.integer.mediumSpace).dp),
             color = MaterialTheme.colorScheme.background,
-            tonalElevation = 8.dp
+            tonalElevation = integerResource(R.integer.smallerSpace).dp
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(integerResource(R.integer.padding).dp)) {
                 Text(message, style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(integerResource(R.integer.mediumSpace).dp))
                 Row(
                     horizontalArrangement = Arrangement.End,
                     modifier = Modifier.fillMaxWidth()

@@ -162,7 +162,7 @@ fun CommunityScreen(
     //Dialog for confirm leaving an event
     if (showLeaveEventDialog && selectedEventId != null) {
         CustomConfirmationDialog(
-            message = "Are you sure you want to leave this event?",
+            message = stringResource(R.string.areYouSureEvent),
             onConfirm = {
                 eventViewModel.leaveEvent(
                     communityId = communityId,
