@@ -179,5 +179,57 @@ fun MyPostsTab(viewModel: HomeViewModel,navController: NavController,userId: Str
 
 @Composable
 fun PostsTabLike(viewModel: HomeViewModel,navController: NavController,userId: String) {
+    val posts by viewModel.posts.collectAsState()
+    val loading by viewModel.loading.collectAsState()
+    val error by viewModel.error.collectAsState()
+    val communityNames by viewModel.communityNames.collectAsState()
+    val userDetails by viewModel.userDetails.collectAsState()
+    LaunchedEffect(Unit) {
+        viewModel.fetchLikedPostsByUser(userId)
+    }
 
+    Box(modifier = Modifier.fillMaxSize()) {
+        when {
+            loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+
+            error != null -> Text(
+                text = error ?: "Unknown error",
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.align(Alignment.Center)
+            )
+
+            else ->
+                LazyColumn(
+                    contentPadding = PaddingValues(
+                        top = 72.dp,
+                        start = 16.dp,
+                        end = 16.dp,
+                        bottom = 56.dp
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(posts) { post ->
+                        val communityName = communityNames[post.communityId] ?: "Unknown"
+                        val (userName, userImage) = userDetails[post.userId] ?: ("Unknown" to "")
+                        PostCard(
+                            post,
+                            communityName,
+                            userName,
+                            userImage,
+                            onClick = {},
+                            onLikeClick = { viewModel.likePost(post) } ,
+                            navController = navController,
+                            onUserImageClick = { viewModel.likePost(post) }
+                        )
+
+                        HorizontalDivider(
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
+                }
+        }
+    }
 }

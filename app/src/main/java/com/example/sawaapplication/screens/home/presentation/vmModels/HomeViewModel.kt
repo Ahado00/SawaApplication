@@ -320,6 +320,54 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun fetchLikedPostsByUser(userId: String) {
+        viewModelScope.launch {
+            _loading.value = true
+            try {
+                val userCommunityIds = getUserCommunityIds(userId)
+
+                if (userCommunityIds.isEmpty()) {
+                    _posts.value = emptyList()
+                    return@launch
+                }
+
+                val postsList = mutableListOf<Post>()
+                val docIdMap = mutableMapOf<Post, String>()
+
+                userCommunityIds.forEach { communityId ->
+                    val postSnapshot = firestore
+                        .collection("Community")
+                        .document(communityId)
+                        .collection("posts")
+                        .whereArrayContains("likedBy" ,userId )
+                        .get()
+                        .await()
+
+                    for (doc in postSnapshot.documents) {
+                        val post = doc.toObject(Post::class.java)
+                        if (post != null) {
+                            postsList.add(post)
+                            docIdMap[post] = doc.id
+                        }
+                    }
+                }
+
+                _posts.value = postsList
+                _postDocumentIds.value = docIdMap
+
+                val communityIds = postsList.map { it.communityId }.distinct()
+                val userIds = postsList.map { it.userId }.distinct()
+
+                fetchCommunityNames(communityIds)
+                fetchUserDetails(userIds)
+
+            } catch (e: Exception) {
+                _error.value = e.message
+            } finally {
+                _loading.value = false
+            }
+        }
+    }
     // fetch joined events
 
     fun fetchJoinedEvents() {
