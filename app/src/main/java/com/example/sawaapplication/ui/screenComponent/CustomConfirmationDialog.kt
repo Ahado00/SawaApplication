@@ -41,10 +41,16 @@ fun CustomConfirmationDialog(
                     horizontalArrangement = Arrangement.End,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    TextButton(onClick = onDismiss) {
+                    TextButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.weight(1f)
+                    ) {
                         Text(cancelText)
                     }
-                    TextButton(onClick = onConfirm) {
+                    TextButton(
+                        onClick = onConfirm,
+                        modifier = Modifier.weight(1f)
+                        ) {
                         Text(confirmText)
                     }
                 }

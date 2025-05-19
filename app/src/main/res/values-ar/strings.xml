@@ -74,6 +74,7 @@
     <string name="chat">المحادثات</string>
     <string name="joinCommunity">إنضم للمجتمع</string>
     <string name="areYouSureEvent">هل أنت متأكد من رغبتك في مغادرة الحدث؟</string>
+    <string name="areYouSureCommunity">هل أنت متأكد من رغبتك في مغادرة المجتمع؟</string>
 
     <!-- Chats Screen-->
     <string name="chats">المحادثات</string>

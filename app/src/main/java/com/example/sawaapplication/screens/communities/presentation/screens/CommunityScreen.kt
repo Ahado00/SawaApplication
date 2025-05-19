@@ -64,7 +64,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.sawaapplication.R
-import com.example.sawaapplication.navigation.Screen
 import com.example.sawaapplication.screens.communities.presentation.vmModels.CommunityViewModel
 import com.example.sawaapplication.screens.communities.presentation.vmModels.ExploreCommunityViewModel
 import com.example.sawaapplication.screens.event.presentation.screens.formatDateString
@@ -127,16 +126,7 @@ fun CommunityScreen(
     val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf(stringResource(R.string.posts), stringResource(R.string.events))
-    LaunchedEffect(communityId) {
-        Log.d("DEBUG", "CommunityScreen launched with id: $communityId")
-        viewModel.fetchCommunityDetail(communityId)
-        viewModel.fetchPostsForCommunity(communityId)
-        fetchEventViewModel.loadEvents(communityId)
-    }
-    LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(500)
-        viewModel.fetchCommunityDetail(communityId)
-    }
+
     val posts by viewModel.communityPosts.collectAsState()
     var joinedevent by remember { mutableStateOf(false) }// we need to get the dynamic initial value
     var joined by remember { mutableStateOf(false) }// we need to get the dynamic initial value
@@ -150,6 +140,19 @@ fun CommunityScreen(
     var showLeaveEventDialog by remember { mutableStateOf(false) }
     var selectedEventId by remember { mutableStateOf<String?>(null) }
 
+    val events by fetchEventViewModel.events.collectAsState()
+
+    LaunchedEffect(communityId) {
+        Log.d("DEBUG", "CommunityScreen launched with id: $communityId")
+        viewModel.fetchCommunityDetail(communityId)
+        viewModel.fetchPostsForCommunity(communityId)
+        fetchEventViewModel.loadEvents(communityId)
+    }
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(500)
+        viewModel.fetchCommunityDetail(communityId)
+    }
+
 
     LaunchedEffect(hasJoinedOrLeft) {
         if (hasJoinedOrLeft) {
@@ -158,8 +161,6 @@ fun CommunityScreen(
             joinCommunityViewModel.resetJoinLeaveState()
         }
     }
-
-    val events by fetchEventViewModel.events.collectAsState()
 
     //Dialog for confirm leaving an event
     if (showLeaveEventDialog && selectedEventId != null) {
@@ -181,6 +182,20 @@ fun CommunityScreen(
         )
     }
 
+    if (showLeaveCommunityDialog){
+        CustomConfirmationDialog(
+            message = stringResource(R.string.areYouSureCommunity),
+            onDismiss = {
+                showLeaveCommunityDialog = false
+            },
+            onConfirm = {
+                joinCommunityViewModel.leaveCommunity(communityId, userId)
+                viewModel.fetchCommunityDetail(communityId)
+                showLeaveCommunityDialog = false
+            },
+        )
+
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -283,8 +298,9 @@ fun CommunityScreen(
                         OutlinedButton(
                             onClick = {
                                 //Leave Community
-                                joinCommunityViewModel.leaveCommunity(communityId, userId)
-                                viewModel.fetchCommunityDetail(communityId)
+                                showLeaveCommunityDialog=true
+//                                joinCommunityViewModel.leaveCommunity(communityId, userId)
+//                                viewModel.fetchCommunityDetail(communityId)
                             },
                             shape = RoundedCornerShape(integerResource(R.integer.roundedCornerShapeCircle)),
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
