@@ -46,7 +46,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -74,13 +73,13 @@ import com.example.sawaapplication.screens.event.presentation.screens.getCityNam
 import com.example.sawaapplication.screens.event.presentation.vmModels.FetchEventViewModel
 import com.example.sawaapplication.screens.home.presentation.screens.component.EventCard
 import com.example.sawaapplication.screens.post.domain.model.PostUiModel
+import com.example.sawaapplication.ui.screenComponent.CustomConfirmationDialog
 import com.example.sawaapplication.ui.theme.Gray
 import com.example.sawaapplication.ui.theme.PrimaryOrange
 import com.example.sawaapplication.ui.theme.black
 import com.example.sawaapplication.ui.theme.white
 import com.google.firebase.auth.FirebaseAuth
 import java.net.URLEncoder
-
 
 data class CommunityUiState(
     val logoUrl: String,
@@ -144,6 +143,12 @@ fun CommunityScreen(
     val isUserJoined = communityDetail?.members?.contains(userId) == true
     val hasJoinedOrLeft by joinCommunityViewModel.hasJoinedOrLeft.collectAsState()
 
+    var showLeaveCommunityDialog by remember { mutableStateOf(false) }
+
+    var showLeaveEventDialog by remember { mutableStateOf(false) }
+    var selectedEventId by remember { mutableStateOf<String?>(null) }
+
+
     LaunchedEffect(hasJoinedOrLeft) {
         if (hasJoinedOrLeft) {
             viewModel.fetchCommunityDetail(communityId)
@@ -153,6 +158,27 @@ fun CommunityScreen(
     }
 
     val events by fetchEventViewModel.events.collectAsState()
+
+    //Dialog for confirm leaving an event
+    if (showLeaveEventDialog && selectedEventId != null) {
+        CustomConfirmationDialog(
+            message = "Are you sure you want to leave this event?",
+            onConfirm = {
+                eventViewModel.leaveEvent(
+                    communityId = communityId,
+                    eventId = selectedEventId!!,
+                    userId = userId
+                )
+                showLeaveEventDialog = false
+                selectedEventId = null
+            },
+            onDismiss = {
+                showLeaveEventDialog = false
+                selectedEventId = null
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -254,6 +280,7 @@ fun CommunityScreen(
                         //Un-joined button
                         OutlinedButton(
                             onClick = {
+                                //Leave Community
                                 joinCommunityViewModel.leaveCommunity(communityId, userId)
                                 viewModel.fetchCommunityDetail(communityId)
                             },
@@ -389,6 +416,7 @@ fun CommunityScreen(
                     communityDetail?.let {
                         val timeFormatted = event.time?.let { formatTimestampToTimeString(it) } ?: "No time set"
                         val formattedDate = formatDateString(event.date)
+
                         EventCard(
                             image = event.imageUri,
                             title = event.title,
@@ -402,11 +430,13 @@ fun CommunityScreen(
                             joined = event.joinedUsers.contains(userId),
                             onJoinClick = {
                                 if (event.joinedUsers.contains(userId)) {
-                                    eventViewModel.leaveEvent(
-                                        communityId = communityId,
-                                        eventId = event.id,
-                                        userId = userId
-                                    )
+                                    selectedEventId = event.id
+                                    showLeaveEventDialog = true
+//                                    eventViewModel.leaveEvent(
+//                                        communityId = communityId,
+//                                        eventId = event.id,
+//                                        userId = userId
+//                                    )
                                 } else {
                                     eventViewModel.joinEvent(
                                         communityId = communityId,

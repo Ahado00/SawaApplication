@@ -115,4 +115,8 @@
     <!--CreatePostScreen-->
     <string name="postContentPlaceholder">شارك أفكارك</string>
 
+    <!--CustomConfirmationDialog-->
+    <string name="yesImSure">نعم، متأكد</string>
+    <string name="no">لا</string>
+
 </resources>
