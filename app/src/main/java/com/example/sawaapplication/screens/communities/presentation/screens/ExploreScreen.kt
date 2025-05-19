@@ -126,7 +126,6 @@ fun ExploreScreen(
             onLeaveClick = { communityId ->
                 selectedCommunityId = communityId
                 showConfirmationDialog = true
-//                viewModel.leaveCommunity(communityId, viewModel.currentUserId)
             }
         )
 
