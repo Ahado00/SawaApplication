@@ -37,6 +37,13 @@ class ProfileViewModel @Inject constructor(
     private val _profileImageUrl = MutableStateFlow<String?>(null)
     val profileImageUrl: StateFlow<String?> get() = _profileImageUrl
 
+    private val _currentUserId = MutableStateFlow<String>("")
+    val currentUserId: StateFlow<String> = _currentUserId
+
+    fun loadCurrentUserId() {
+        val id = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+        _currentUserId.value = id
+    }
     init {
         getUserData()
     }
