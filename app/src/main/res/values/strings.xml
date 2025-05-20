@@ -67,6 +67,20 @@
     <string name="eventTime">Event Time</string>
     <string name="eventLocation">Event Location</string>
 
+    <!--Community Types-->
+    <string name="selectCommunityType">Select Community Type</string>
+    <string name="sports">Sports</string>
+    <string name="gaming">Gaming</string>
+    <string name="petsAnimals">Pets and Animals</string>
+    <string name="techGadgets">Tech Gadgets</string>
+    <string name="moviesTVShows">Movies and TV Shows</string>
+    <string name="booksLiterature">Books and Literature</string>
+    <string name="travelAdventure">Travel and Adventure</string>
+    <string name="healthWellness">Health and Wellness</string>
+    <string name="artCreativity">Art Creativity</string>
+    <string name="funn">Fun</string>
+    <string name="other">Other</string>
+
     <!--CommunityScreen-->
     <string name="posts">Posts</string>
     <string name="events">Events</string>
@@ -119,4 +133,5 @@
     <!--CustomConfirmationDialog-->
     <string name="yesImSure">Yes, I\'m sure</string>
     <string name="no">No</string>
+
 </resources>

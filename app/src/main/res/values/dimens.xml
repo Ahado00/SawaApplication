@@ -149,6 +149,7 @@
     <!--NewCommunity-->
     <integer name="communityBoxSize">150</integer>
     <integer name="descriptionBoxHeight">120</integer>
+    <integer name="itemHeight">48</integer>
 
     <!--PostCard-->
     <integer name="postCardRoundedCornerShape">16</integer>

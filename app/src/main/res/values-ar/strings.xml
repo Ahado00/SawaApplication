@@ -87,6 +87,20 @@
     <string name="communityName">إسم المجتمع</string>
     <string name="newCommDescription">الوصف</string>
 
+    <!--Community Types-->
+    <string name="selectCommunityType">إختر نوع المجتمع</string>
+    <string name="sports">رياضة</string>
+    <string name="gaming">قيمنق</string>
+    <string name="petsAnimals">حيوانات أليفة</string>
+    <string name="techGadgets">التكنولوجيا</string>
+    <string name="moviesTVShows">الأفلام والمسلسلات</string>
+    <string name="booksLiterature">كتب</string>
+    <string name="travelAdventure">السفر والمغامرة</string>
+    <string name="healthWellness">الصحة</string>
+    <string name="artCreativity">الإبداع والفن</string>
+    <string name="funn">المرح</string>
+    <string name="other">غير ذلك</string>
+
     <!-- Event Card Screen-->
     <string name="upcomingEvents">الأحداث القادمة</string>
 
