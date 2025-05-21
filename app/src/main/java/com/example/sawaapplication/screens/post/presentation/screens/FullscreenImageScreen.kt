@@ -7,6 +7,9 @@ import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.Image
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,7 +52,8 @@ fun FullscreenImageScreen(
         Log.e("FullscreenImageScreen", "Failed to load image", painterState.result.throwable)
     }
 
-    Box(
+    Card(
+        colors = CardDefaults.cardColors(Color.Black),
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
