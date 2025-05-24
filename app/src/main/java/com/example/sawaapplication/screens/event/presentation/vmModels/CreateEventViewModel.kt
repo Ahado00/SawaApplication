@@ -124,11 +124,6 @@ class CreateEventViewModel @Inject constructor(
             longitude = location.longitude
         )
 
-
-
-
-
-
     job = viewModelScope.launch {
             _loading.value = true
             try {

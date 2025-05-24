@@ -42,4 +42,9 @@ class NotificationRepositoryImpl @Inject constructor(
         remote.observeUnreadNotifications(listener)
     }
 
+    override fun remindUpcomingCommunityEvents() {
+        remote.remindCommunityMembersAboutUpcomingEvent()
+    }
+
+
 }

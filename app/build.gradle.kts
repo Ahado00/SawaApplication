@@ -110,20 +110,22 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.accompanist.permissions)
 
-
     // Google maps Compose
     implementation(libs.maps.compose)
 
     // Serialization Dependency
     implementation(libs.kotlinx.serialization.json)
 
-    //Picking an image from gallery
+    // Picking an image from gallery
     implementation(libs.androidx.activity.compose.v180)
-    //building blocks for Compose UIs ex: LazyColumn
+    // building blocks for Compose UIs ex: LazyColumn
     implementation(libs.androidx.foundation)
-    //load image for url
+    // load image for url
     implementation(libs.coil.compose)
 
+    implementation("com.onesignal:OneSignal:[5.1.6, 5.1.99]")
+
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
 
 }

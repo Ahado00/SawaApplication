@@ -11,4 +11,5 @@ interface NotificationRepository {
     fun sendCommunityEventNotification(communityId: String, eventName: String)
     fun sendLikeNotification(post: Post)
     fun observeUnreadNotifications(listener: (Boolean) -> Unit)
+    fun remindUpcomingCommunityEvents()
 }
