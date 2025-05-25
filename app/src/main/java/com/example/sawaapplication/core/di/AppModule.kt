@@ -3,6 +3,7 @@ package com.example.sawaapplication.core.di
 import android.content.Context
 import com.example.sawaapplication.core.sharedPreferences.AuthInterceptor
 import com.example.sawaapplication.core.sharedPreferences.LocationSharedPreference
+import com.example.sawaapplication.core.sharedPreferences.NotificationSharedPreference
 import com.example.sawaapplication.core.sharedPreferences.OkHTTPBuilder
 import com.example.sawaapplication.core.sharedPreferences.TokenProvider
 import com.example.sawaapplication.screens.authentication.data.dataSources.remote.FirebaseAuthDataSource
@@ -75,7 +76,6 @@ object AppModule {
         return CommunityRepositoryImpl(remoteDataSource, firestore)
     }
 
-    // Provide GetUserCreatedCommunitiesUseCase
     @Provides
     fun provideGetUserCreatedCommunitiesUseCase(
         communityRepository: CommunityRepository
@@ -140,12 +140,6 @@ object AppModule {
         return NotificationRepositoryImpl(remoteDataSource, firebaseAuth)
     }
 
-
-    /**
-     * Add two provides
-     * 1- PostRemoteDataSource
-     * 2- PostRepository
-     * */
     @Provides
     fun providePostRemoteDataSource(
         firestore: FirebaseFirestore,
@@ -214,5 +208,12 @@ object AppModule {
         profileRepository: ProfileRepository
     ): FetchAboutMeUseCase {
         return FetchAboutMeUseCase(profileRepository)
+    }
+
+    @Provides
+    fun provideNotificationSharedPreference(
+        @ApplicationContext context: Context
+    ): NotificationSharedPreference {
+        return NotificationSharedPreference(context)
     }
 }

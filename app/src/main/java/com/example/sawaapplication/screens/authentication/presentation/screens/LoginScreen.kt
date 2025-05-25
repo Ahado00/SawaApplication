@@ -50,9 +50,9 @@ fun LoginScreen(
     val context = LocalContext.current
 
     val authState by loginViewModel.authState.collectAsState()
+
     LaunchedEffect(authState) {
         handleAuthStateLogin(authState, context, navController)
-
     }
 
     Column(

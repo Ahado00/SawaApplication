@@ -1,6 +1,10 @@
 package com.example.sawaapplication.screens.home.presentation.screens
 
+import android.os.Build
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,17 +15,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,8 +39,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.sawaapplication.R
+import com.example.sawaapplication.core.di.PermissionHandlerEntryPoint
+import com.example.sawaapplication.core.permissions.PermissionHandler
 import com.example.sawaapplication.screens.event.presentation.screens.formatDateString
 import com.example.sawaapplication.screens.event.presentation.screens.formatTimestampToTimeString
 import com.example.sawaapplication.screens.event.presentation.vmModels.FetchEventViewModel
@@ -45,6 +58,8 @@ import com.example.sawaapplication.ui.screenComponent.CustomConfirmationDialog
 import com.example.sawaapplication.utils.getCityNameFromGeoPoint
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.reporting.MessagingClientEvent
+import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.delay
 
 @Composable
 fun HomeScreen(
@@ -53,7 +68,95 @@ fun HomeScreen(
 ) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf(stringResource(R.string.posts), stringResource(R.string.events))
-    var eventToDelete by remember { mutableStateOf<MessagingClientEvent.Event?>(null) }
+
+    val context = LocalContext.current
+
+    val navEntry = navController.currentBackStackEntryAsState().value
+    val lifecycle = navEntry?.lifecycle
+
+
+    val showDialog = remember { mutableStateOf(false) }
+
+    val permissionHandler = remember {
+        EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            PermissionHandlerEntryPoint::class.java
+        ).permissionHandler()
+    }
+
+//    val launcher = rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.RequestPermission()
+//    ) { isGranted ->
+//        permissionHandler.markNotificationPermissionRequested()
+//        Toast.makeText(
+//            context,
+//            if (isGranted) "Notifications enabled" else "Notifications denied",
+//            Toast.LENGTH_SHORT
+//        ).show()
+//        showDialog.value = false
+//    }
+
+    val requestPending = remember { mutableStateOf(false) }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        permissionHandler.markNotificationPermissionRequested()
+        Toast.makeText(
+            context,
+            if (isGranted) "Notifications enabled" else "Notifications denied",
+            Toast.LENGTH_SHORT
+        ).show()
+        requestPending.value = false
+    }
+
+    DisposableEffect(lifecycle) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                permissionHandler.shouldRequestNotificationPermission()
+            ) {
+                showDialog.value = true
+            }
+        }
+        lifecycle?.addObserver(observer)
+        onDispose {
+            lifecycle?.removeObserver(observer)
+        }
+    }
+
+    LaunchedEffect(requestPending.value) {
+        if (requestPending.value) {
+            launcher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = {
+                permissionHandler.markNotificationPermissionRequested()
+                showDialog.value = false
+            },
+            title = { Text("Enable Notifications?") },
+            text = { Text("We’d like to send you updates. Allow notifications?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDialog.value = false
+                    requestPending.value = true // trigger system dialog on next frame
+                }) {
+                    Text("Allow")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    permissionHandler.markNotificationPermissionRequested()
+                    showDialog.value = false
+                }) {
+                    Text("No Thanks")
+                }
+            }
+        )
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
 
