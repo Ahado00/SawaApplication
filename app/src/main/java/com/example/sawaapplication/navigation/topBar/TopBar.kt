@@ -138,6 +138,8 @@ fun getTopBar(
 ): (@Composable () -> Unit)? {
 
     val hasUnread = notificationViewModel.hasUnreadNotifications.collectAsState().value
+    val layoutDirection = androidx.compose.ui.platform.LocalLayoutDirection.current
+    val isRtl = layoutDirection == androidx.compose.ui.unit.LayoutDirection.Rtl
 
     return when (currentRoute) {
         Screen.Community.route -> {
@@ -183,8 +185,6 @@ fun getTopBar(
                     title = stringResource(R.string.notification),
                     imageUrl = imageUrl,
                     navIcon = {
-                        val layoutDirection = androidx.compose.ui.platform.LocalLayoutDirection.current
-                        val isRtl = layoutDirection == androidx.compose.ui.unit.LayoutDirection.Rtl
                         IconButton(onClick = { navController.popBackStack() }) {
                             Icon(
                                 imageVector = Icons.Default.ArrowBack,
@@ -209,8 +209,6 @@ fun getTopBar(
                     title = stringResource(R.string.editProfile),
                     imageUrl = imageUrl,
                     navIcon = {
-                        val layoutDirection = androidx.compose.ui.platform.LocalLayoutDirection.current
-                        val isRtl = layoutDirection == androidx.compose.ui.unit.LayoutDirection.Rtl
                         IconButton(onClick = { navController.popBackStack() }) {
                             Icon(
                                 imageVector = Icons.Default.ArrowBack,
@@ -233,8 +231,6 @@ fun getTopBar(
                 TopBar(
                     title = "",
                     navIcon = {
-                        val layoutDirection = androidx.compose.ui.platform.LocalLayoutDirection.current
-                        val isRtl = layoutDirection == androidx.compose.ui.unit.LayoutDirection.Rtl
                         IconButton(onClick = { navController.popBackStack() }) {
                             Icon(
                                 imageVector = Icons.Default.ArrowBack,
@@ -257,8 +253,6 @@ fun getTopBar(
                 TopBar(
                     title = "",
                     navIcon = {
-                        val layoutDirection = androidx.compose.ui.platform.LocalLayoutDirection.current
-                        val isRtl = layoutDirection == androidx.compose.ui.unit.LayoutDirection.Rtl
                         IconButton(onClick = { navController.popBackStack() }) {
                             Icon(
                                 imageVector = Icons.Default.ArrowBack,
@@ -297,8 +291,6 @@ fun getTopBar(
                 TopBar(
                     title = stringResource(R.string.groupMembers),
                     navIcon = {
-                        val layoutDirection = androidx.compose.ui.platform.LocalLayoutDirection.current
-                        val isRtl = layoutDirection == androidx.compose.ui.unit.LayoutDirection.Rtl
                         IconButton(onClick = { navController.popBackStack() }) {
                             Icon(
                                 imageVector = Icons.Default.ArrowBack,

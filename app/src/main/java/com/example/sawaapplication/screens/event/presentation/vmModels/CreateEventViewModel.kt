@@ -57,15 +57,6 @@ class CreateEventViewModel @Inject constructor(
     private val _events = MutableStateFlow<List<Event>>(emptyList())
     val events: StateFlow<List<Event>> = _events
 
-
-    init {
-        val dateString = "2024-05-23" // your input
-        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-
-        val date = formatter.parse(dateString)
-        eventDate = date?.time
-    }
-
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
@@ -203,23 +194,6 @@ class CreateEventViewModel @Inject constructor(
             }
         }
     }
-
-
-
-    suspend fun fetchEventById(eventId: String, communityId: String): Event? {
-        return try {
-            val event = eventRepository.getEventById(communityId, eventId)
-            editingEvent = event
-            event
-        } catch (e: Exception) {
-            Log.e("EditEvent", "Error fetching event: ${e.message}")
-            null
-        }
-    }
-
-
-
-
 
     fun resetSuccess() {
         _success.value = false

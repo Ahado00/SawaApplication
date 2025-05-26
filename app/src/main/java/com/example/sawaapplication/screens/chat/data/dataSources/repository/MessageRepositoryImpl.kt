@@ -1,4 +1,4 @@
-package com.example.sawaapplication.screens.chat.data.repository
+package com.example.sawaapplication.screens.chat.data.dataSources.repository
 
 import android.net.Uri
 import com.example.sawaapplication.screens.chat.data.dataSources.remote.MassageRemoteDataSource

@@ -38,9 +38,10 @@ import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.sawaapplication.R
+import com.example.sawaapplication.navigation.Screen
 import com.example.sawaapplication.screens.event.presentation.screens.formatDateString
 import com.example.sawaapplication.screens.event.presentation.screens.formatTimestampToTimeString
-import com.example.sawaapplication.screens.event.presentation.vmModels.FetchEventViewModel
+import com.example.sawaapplication.screens.event.presentation.vmModels.EventViewModel
 import com.example.sawaapplication.screens.home.presentation.screens.component.CustomTabRow
 import com.example.sawaapplication.screens.home.presentation.screens.component.EventCard
 import com.example.sawaapplication.screens.home.presentation.screens.component.PostCard
@@ -51,6 +52,7 @@ import com.example.sawaapplication.ui.screenComponent.CustomConfirmationDialog
 import com.example.sawaapplication.utils.getCityNameFromGeoPoint
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.reporting.MessagingClientEvent
+import java.net.URLEncoder
 
 @Composable
 fun HomeScreen(
@@ -97,8 +99,6 @@ fun PostsTab(viewModel: HomeViewModel, navController: NavController) {
 
     val postLikedUserId = viewModel.postLikedEvent.collectAsState().value
 
-
-
     // Trigger a notification whenever a post is liked by a user
     LaunchedEffect(postLikedUserId) {
         postLikedUserId?.let { likedUserId ->
@@ -112,7 +112,6 @@ fun PostsTab(viewModel: HomeViewModel, navController: NavController) {
     LaunchedEffect(Unit) {
         viewModel.loadAllPosts()
     }
-
 
     Box(modifier = Modifier.fillMaxSize()) {
         when {
@@ -143,10 +142,16 @@ fun PostsTab(viewModel: HomeViewModel, navController: NavController) {
                         PostCard(
                             post,
                             communityName,
-                            communityId = post.communityId, // make sure this is available
+                            communityId = post.communityId,
                             userName,
                             userImage,
-                            onClick = {},
+                            onClick = {  // ✅ FIXED: No parameters, get image from post object
+                                val imageUrl = post.imageUri // or post.postImageUrl - check your Post model
+                                if (!imageUrl.isNullOrEmpty()) {
+                                    val encoded = URLEncoder.encode(imageUrl, "utf-8")
+                                    navController.navigate(Screen.FullscreenImage.createRoute(encoded))
+                                }
+                            },
                             onLikeClick = {
                                 viewModel.likePost(post)
                                 notificationViewModel.notifyLike(post)
@@ -175,7 +180,7 @@ fun PostsTab(viewModel: HomeViewModel, navController: NavController) {
 @Composable
 fun MyEventsTab(
     viewModel: HomeViewModel = hiltViewModel(),
-    eventViewModel: FetchEventViewModel = hiltViewModel(),
+    eventViewModel: EventViewModel = hiltViewModel(),
     navController: NavController
 ) {
     val events by viewModel.joinedEvents.collectAsState()

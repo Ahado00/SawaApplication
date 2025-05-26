@@ -74,8 +74,8 @@ import com.example.sawaapplication.screens.communities.presentation.vmModels.Com
 import com.example.sawaapplication.screens.communities.presentation.vmModels.ExploreCommunityViewModel
 import com.example.sawaapplication.screens.event.presentation.screens.formatDateString
 import com.example.sawaapplication.screens.event.presentation.screens.formatTimestampToTimeString
-import com.example.sawaapplication.screens.event.presentation.screens.getCityNameFromGeoPoint
-import com.example.sawaapplication.screens.event.presentation.vmModels.FetchEventViewModel
+import com.example.sawaapplication.utils.getCityNameFromGeoPoint
+import com.example.sawaapplication.screens.event.presentation.vmModels.EventViewModel
 import com.example.sawaapplication.screens.home.presentation.screens.component.EventCard
 import com.example.sawaapplication.screens.post.presentation.vmModels.CommunityPostsViewModel
 import com.example.sawaapplication.ui.screenComponent.CustomConfirmationDialog
@@ -97,7 +97,7 @@ private data class DialogState(
 fun CommunityScreen(
     communityId: String,
     viewModel: CommunityViewModel = hiltViewModel(),
-    eventViewModel: FetchEventViewModel = hiltViewModel(),
+    eventViewModel: EventViewModel = hiltViewModel(),
     communityPostsViewModel: CommunityPostsViewModel = hiltViewModel(),
     joinCommunityViewModel: ExploreCommunityViewModel = hiltViewModel(),
     onBackPressed: () -> Unit,
@@ -315,7 +315,7 @@ private suspend fun initializeCommunityData(
     communityId: String,
     viewModel: CommunityViewModel,
     communityPostsViewModel: CommunityPostsViewModel,
-    eventViewModel: FetchEventViewModel
+    eventViewModel: EventViewModel
 ) {
     viewModel.fetchCommunityDetail(communityId)
     communityPostsViewModel.loadPosts(communityId)

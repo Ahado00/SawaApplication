@@ -3,12 +3,10 @@ package com.example.sawaapplication.screens.event.presentation.screens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.sawaapplication.screens.event.presentation.vmModels.CreateEventViewModel
-import com.example.sawaapplication.screens.event.presentation.vmModels.FetchEventViewModel
+import com.example.sawaapplication.screens.event.presentation.vmModels.EventViewModel
 
 @Composable
 fun EditEventScreen(
@@ -16,7 +14,7 @@ fun EditEventScreen(
     communityId: String,
     navController: NavHostController,
     viewModel: CreateEventViewModel = hiltViewModel(),
-    fetchEventViewModel: FetchEventViewModel = hiltViewModel()
+    fetchEventViewModel: EventViewModel = hiltViewModel()
 ) {
     // Use state to hold the fetched event
     val eventState = fetchEventViewModel.event.collectAsState()

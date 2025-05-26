@@ -66,10 +66,10 @@ import com.example.sawaapplication.screens.event.domain.model.Event
 import com.example.sawaapplication.screens.event.presentation.vmModels.CreateEventViewModel
 import com.example.sawaapplication.screens.notification.presentation.viewmodels.NotificationViewModel
 import com.example.sawaapplication.ui.screenComponent.CustomTextField
+import com.example.sawaapplication.utils.getCityNameFromGeoPoint
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import com.google.accompanist.permissions.shouldShowRationale
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.GeoPoint
@@ -111,7 +111,6 @@ fun CreateNewEventScreen(
     ) { uri: Uri? ->
         viewModel.imageUri = uri
     }
-
     val formattedDate = viewModel.eventDate?.let {
         DateFormat.getDateInstance().format(Date(it))
     } ?: ""
@@ -126,17 +125,6 @@ fun CreateNewEventScreen(
             }
         }
     }
-
-//    // React to success
-//    LaunchedEffect(success) {
-//        if (success) {
-//            notificationViewModel.notifyEventCreated(viewModel.name)
-//            notificationViewModel.notifyCommunityMembers(communityId, viewModel.name)
-//            Toast.makeText(context, context.getString(R.string.eventCreated), Toast.LENGTH_SHORT).show()
-//            navController.popBackStack()
-//            viewModel.success.value = false
-//        }
-//    }
 
     // Photo Permission Dialog
     if (showPhotoPermissionDialog) {
@@ -358,15 +346,20 @@ fun CreateNewEventScreen(
             )
 
             CustomTextField(
-                formattedDate, {}, stringResource(R.string.eventDate), readOnly = true,
+                value = formattedDate,
+                onValueChange = {}, // readOnly
+                label = stringResource(R.string.eventDate),
+                readOnly = true,
                 trailingIcon = {
                     Icon(
                         Icons.Default.DateRange,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.clickable { showDatePicker = true })
+                        modifier = Modifier.clickable { showDatePicker = true }
+                    )
                 }
             )
+
 
             CustomTextField(
                 viewModel.eventTime,
@@ -434,8 +427,8 @@ fun CreateNewEventScreen(
                         ) {
                             val cameraPositionState = rememberCameraPositionState {
                                 position = CameraPosition.fromLatLngZoom(
-                                    pickedLocation ?: LatLng(24.7136, 46.6753),
-                                    5f
+                                    pickedLocation ?: LatLng(24.4403644, 39.6411140),
+                                    10f
                                 )
                             }
 

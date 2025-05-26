@@ -11,7 +11,13 @@ fun Context.getCityNameFromGeoPoint(geoPoint: GeoPoint): String {
         val addresses = geocoder.getFromLocation(geoPoint.latitude, geoPoint.longitude, 1)
         val address = addresses?.getOrNull(0)
 
-        address?.adminArea ?: address?.locality ?: address?.subAdminArea ?: "Unknown Location"
+        if (address != null) {
+            listOfNotNull(
+                address.thoroughfare,
+            ).joinToString(", ")
+        } else {
+            "No Location Set"
+        }
     } catch (e: Exception) {
         e.printStackTrace()
         "Unknown Location"

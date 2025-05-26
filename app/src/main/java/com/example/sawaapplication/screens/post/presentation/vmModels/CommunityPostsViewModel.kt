@@ -15,6 +15,7 @@ import com.example.sawaapplication.screens.post.domain.useCases.GetAllPostsUseCa
 import com.example.sawaapplication.screens.post.domain.repository.PostRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -71,6 +72,9 @@ class CommunityPostsViewModel @Inject constructor(
     private val _creatingPost = MutableStateFlow(false)
     val creatingPost: StateFlow<Boolean> = _creatingPost.asStateFlow()
 
+    // Real-time listener
+    private var postsListener: ListenerRegistration? = null
+
     private val currentUserId: String
         get() = firebaseAuth.currentUser?.uid.orEmpty()
 
@@ -105,7 +109,7 @@ class CommunityPostsViewModel @Inject constructor(
             createPostUseCase(communityId, post, _imageUri)
 
             resetForm()
-            loadPosts(communityId) // Refresh posts after creation
+            fetchPostsForCommunity(communityId)
             _success.value = true
             Log.d(TAG, "Post created successfully")
             true
@@ -152,10 +156,11 @@ class CommunityPostsViewModel @Inject constructor(
                 Log.d(TAG, "Loading posts for community: $communityId")
 
                 val posts = fetchPostsFromFirestore(communityId)
-                val sortedPosts = sortPostsByDate(posts)
+                val enrichedPosts = enrichPostsWithUserInfo(posts) // ✅ NEW: Enrich with user info
+                val sortedPosts = sortPostsByDate(enrichedPosts)
 
                 _communityPosts.value = sortedPosts
-                Log.d(TAG, "Successfully loaded ${sortedPosts.size} posts")
+                Log.d(TAG, "Successfully loaded ${sortedPosts.size} posts with user info")
 
             } catch (e: Exception) {
                 val errorMessage = "Failed to load posts: ${e.message}"
@@ -168,7 +173,7 @@ class CommunityPostsViewModel @Inject constructor(
         }
     }
 
-    // Alternative method using PostRepository (for compatibility)
+    // Alternative method using PostRepository (for compatibility) - RECOMMENDED
     fun fetchPostsForCommunity(communityId: String) {
         viewModelScope.launch {
             try {
@@ -241,9 +246,9 @@ class CommunityPostsViewModel @Inject constructor(
     ): PostUiModel {
         return PostUiModel(
             id = documentId,
-            username = data["username"] as? String ?: "",
-            userAvatarUrl = data["userAvatarUrl"] as? String ?: "",
-            postImageUrl = data["imageUri"] as? String ?: "", // ✅ Fixed: Use correct field name
+            username = data["username"] as? String ?: "Unknown User", // Will be enriched later
+            userAvatarUrl = data["userAvatarUrl"] as? String ?: "", // Will be enriched later
+            postImageUrl = data["imageUri"] as? String ?: "",
             content = data["content"] as? String ?: "",
             likes = (data["likes"] as? Long)?.toInt() ?: 0,
             likedBy = data["likedBy"] as? List<String> ?: emptyList(),
@@ -251,6 +256,50 @@ class CommunityPostsViewModel @Inject constructor(
             communityId = data["communityId"] as? String ?: communityId,
             createdAt = data["createdAt"] as? String ?: ""
         )
+    }
+
+
+    private suspend fun enrichPostsWithUserInfo(posts: List<PostUiModel>): List<PostUiModel> {
+        return posts.map { post ->
+            if (post.username != "Unknown User" && post.username.isNotEmpty()) {
+                // Already has user info
+                post
+            } else {
+                // Fetch user info from User collection (same as PostsInCommunityRemote)
+                try {
+                    val userDoc = firestore.collection("User")
+                        .document(post.userId)
+                        .get()
+                        .await()
+
+                    if (userDoc.exists()) {
+                        val userData = userDoc.data
+                        post.copy(
+                            username = userData?.get("name") as? String
+                                ?: userData?.get("username") as? String
+                                ?: userData?.get("displayName") as? String
+                                ?: "User ${post.userId.take(6)}",
+                            userAvatarUrl = userData?.get("image") as? String
+                                ?: userData?.get("avatarUrl") as? String
+                                ?: userData?.get("profileImageUrl") as? String
+                                ?: ""
+                        )
+                    } else {
+                        // User document doesn't exist, use default
+                        post.copy(
+                            username = "User ${post.userId.take(6)}",
+                            userAvatarUrl = ""
+                        )
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to fetch user info for ${post.userId}: ${e.message}")
+                    post.copy(
+                        username = "User ${post.userId.take(6)}",
+                        userAvatarUrl = ""
+                    )
+                }
+            }
+        }
     }
 
     private fun sortPostsByDate(posts: List<PostUiModel>): List<PostUiModel> {
@@ -264,6 +313,7 @@ class CommunityPostsViewModel @Inject constructor(
         }
     }
 
+    // EXACT COPY OF YOUR WORKING LIKE FUNCTIONALITY - COMPLETELY SEPARATE
     // Enhanced Like/Unlike Methods with Transaction Support
     fun likePost(postId: String) {
         viewModelScope.launch {
@@ -386,6 +436,7 @@ class CommunityPostsViewModel @Inject constructor(
             )
         }
     }
+    // END OF EXACT COPY OF YOUR WORKING LIKE FUNCTIONALITY
 
     // Post Management Methods
     fun deletePost(postId: String, communityId: String) {
@@ -454,7 +505,7 @@ class CommunityPostsViewModel @Inject constructor(
 
     // Refresh Method
     fun refresh(communityId: String) {
-        loadPosts(communityId)
+        fetchPostsForCommunity(communityId)
     }
 
     fun refreshWithRepository(communityId: String) {
@@ -463,7 +514,9 @@ class CommunityPostsViewModel @Inject constructor(
 
     // Real-time listener for posts (optional)
     fun startListeningToPosts(communityId: String) {
-        firestore
+        stopListeningToPosts() // Stop any existing listener
+
+        postsListener = firestore
             .collection("Community")
             .document(communityId)
             .collection("posts")
@@ -473,15 +526,21 @@ class CommunityPostsViewModel @Inject constructor(
                     return@addSnapshotListener
                 }
 
-                snapshot?.let { querySnapshot ->
-                    val posts = querySnapshot.documents.mapNotNull { doc ->
-                        doc.data?.let { data ->
-                            mapFirestoreDataToPostUiModel(doc.id, data, communityId)
-                        }
-                    }
-                    _communityPosts.value = sortPostsByDate(posts)
-                    Log.d(TAG, "Real-time update: ${posts.size} posts")
+                snapshot?.let { _ ->
+
+                    fetchPostsForCommunity(communityId)
+                    Log.d(TAG, "Real-time update triggered refresh via repository")
                 }
             }
+    }
+
+    fun stopListeningToPosts() {
+        postsListener?.remove()
+        postsListener = null
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        stopListeningToPosts()
     }
 }

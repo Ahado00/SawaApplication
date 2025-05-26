@@ -52,8 +52,8 @@ fun UserAccount(
 ) {
     val selectedUser by profileViewModel.selectedUser.collectAsState()
     val viewModel: HomeViewModel = hiltViewModel()
-    val badgeDefs        by profileViewModel.viewedDefinitions.collectAsState()
-    val badgeAwarded     by profileViewModel.viewedAwarded.collectAsState()
+    val badgeDefs by profileViewModel.viewedDefinitions.collectAsState()
+    val badgeAwarded by profileViewModel.viewedAwarded.collectAsState()
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf(
@@ -64,190 +64,131 @@ fun UserAccount(
     LaunchedEffect(userId) {
         profileViewModel.fetchUserById(userId)
         profileViewModel.loadUserBadges(userId)
+
+        if (selectedTabIndex == 0) viewModel.fetchPostsByUser(userId)
+        else viewModel.fetchLikedPostsByUser(userId)
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        // Show user info if available
-        selectedUser?.let { user ->
-            Column(
+    val posts by viewModel.posts.collectAsState()
+    val loading by viewModel.loading.collectAsState()
+    val error by viewModel.error.collectAsState()
+    val communityNames by viewModel.communityNames.collectAsState()
+    val userDetails by viewModel.userDetails.collectAsState()
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(bottom = 56.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        item {
+            selectedUser?.let { user ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = if (!user.image.isNullOrEmpty())
+                            rememberAsyncImagePainter(user.image)
+                        else
+                            painterResource(id = R.drawable.ic_launcher_background),
+                        contentDescription = "Profile image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(CircleShape)
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = user.name ?: "Unknown",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = user.aboutMe ?: "",
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    CompactBadgeRow(
+                        definitions = badgeDefs,
+                        awarded = badgeAwarded,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        iconSize = 28.dp,
+                        spacing = 4.dp
+                    )
+                }
+            } ?: Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top
+                    .padding(vertical = 32.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = if (!user.image.isNullOrEmpty())
-                        rememberAsyncImagePainter(user.image)
-                    else
-                        painterResource(id = R.drawable.ic_launcher_background),
-                    contentDescription = "Profile image",
-                    contentScale = ContentScale.Crop,
+                Text("Loading user info...")
+            }
+        }
+
+        item {
+            CustomTabRow(
+                tabs = tabs,
+                selectedTabIndex = selectedTabIndex,
+                onTabSelected = {
+                    selectedTabIndex = it
+                    if (it == 0) viewModel.fetchPostsByUser(userId)
+                    else viewModel.fetchLikedPostsByUser(userId)
+                }
+            )
+        }
+
+        when {
+            loading -> item {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(modifier = Modifier.padding(24.dp))
+                }
+            }
+
+            error != null -> item {
+                Text(
+                    text = error ?: "Unknown error",
+                    color = MaterialTheme.colorScheme.error,
                     modifier = Modifier
-                        .size(80.dp)
-                        .clip(CircleShape)
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Text(
-                    text = user.name ?: "Unknown",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = user.aboutMe ?: "",
-                    fontSize = 16.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-                CompactBadgeRow(
-                    definitions = badgeDefs,
-                    awarded     = badgeAwarded,
-                    modifier    = Modifier.padding(horizontal = 16.dp),
-                    iconSize    = 28.dp,
-                    spacing     = 4.dp
+                        .padding(16.dp)
+                        .fillMaxWidth()
                 )
             }
-        } ?: run {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = "Loading user info...")
+
+            else -> items(posts) { post ->
+                val communityName = communityNames[post.communityId] ?: "Unknown"
+                val (userName, userImage) = userDetails[post.userId] ?: ("Unknown" to "")
+
+                PostCard(
+                    post = post,
+                    communityName = communityName,
+                    communityId = post.communityId,
+                    userName = userName,
+                    userImage = userImage,
+                    onClick = {},
+                    onLikeClick = { viewModel.likePost(post) },
+                    onDeleteClick = { viewModel.deletePost(post) },
+                    navController = navController,
+                    onUserImageClick = { viewModel.likePost(post) }
+                )
+
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
             }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Tab Row
-        CustomTabRow(
-            tabs = tabs,
-            selectedTabIndex = selectedTabIndex,
-            onTabSelected = { selectedTabIndex = it }
-        )
-
-        when (selectedTabIndex) {
-            0 -> MyPostsTab(viewModel, navController, userId)
-            1 -> PostsTabLike(viewModel, navController, userId)
-        }
-    }
-}
-
-@Composable
-fun MyPostsTab(viewModel: HomeViewModel, navController: NavController, userId: String) {
-    val posts by viewModel.posts.collectAsState()
-    val loading by viewModel.loading.collectAsState()
-    val error by viewModel.error.collectAsState()
-    val communityNames by viewModel.communityNames.collectAsState()
-    val userDetails by viewModel.userDetails.collectAsState()
-    LaunchedEffect(Unit) {
-        viewModel.fetchPostsByUser(userId)
-    }
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        when {
-            loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-
-            error != null -> Text(
-                text = error ?: "Unknown error",
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.align(Alignment.Center)
-            )
-
-            else ->
-                LazyColumn(
-                    contentPadding = PaddingValues(
-                        top = 72.dp,
-                        start = 16.dp,
-                        end = 16.dp,
-                        bottom = 56.dp
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(posts) { post ->
-                        val communityName = communityNames[post.communityId] ?: "Unknown"
-                        val (userName, userImage) = userDetails[post.userId] ?: ("Unknown" to "")
-                        PostCard(
-                            post = post,
-                            communityName = communityName,
-                            communityId = post.communityId,
-                            userName = userName,
-                            userImage = userImage,
-                            onClick = {},
-                            onLikeClick = { viewModel.likePost(post) },
-                            onDeleteClick = { viewModel.deletePost(post) },
-                            navController = navController,
-                            onUserImageClick = { viewModel.likePost(post) }
-                        )
-
-                        HorizontalDivider(
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
-                    }
-                }
-        }
-    }
-}
-
-@Composable
-fun PostsTabLike(viewModel: HomeViewModel, navController: NavController, userId: String) {
-    val posts by viewModel.posts.collectAsState()
-    val loading by viewModel.loading.collectAsState()
-    val error by viewModel.error.collectAsState()
-    val communityNames by viewModel.communityNames.collectAsState()
-    val userDetails by viewModel.userDetails.collectAsState()
-    LaunchedEffect(Unit) {
-        viewModel.fetchLikedPostsByUser(userId)
-    }
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        when {
-            loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-
-            error != null -> Text(
-                text = error ?: "Unknown error",
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.align(Alignment.Center)
-            )
-
-            else ->
-                LazyColumn(
-                    contentPadding = PaddingValues(
-                        top = 72.dp,
-                        start = 16.dp,
-                        end = 16.dp,
-                        bottom = 56.dp
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(posts) { post ->
-                        val communityName = communityNames[post.communityId] ?: "Unknown"
-                        val (userName, userImage) = userDetails[post.userId] ?: ("Unknown" to "")
-                        PostCard(
-                            post = post,
-                            communityName = communityName,
-                            communityId = post.communityId,
-                            userName = userName,
-                            userImage = userImage,
-                            onClick = {},
-                            onLikeClick = { viewModel.likePost(post) },
-                            onDeleteClick = { viewModel.deletePost(post) },
-                            navController = navController,
-                            onUserImageClick = { viewModel.likePost(post) }
-                        )
-
-                        HorizontalDivider(
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
-                    }
-                }
         }
     }
 }

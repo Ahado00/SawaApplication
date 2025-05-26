@@ -1,4 +1,4 @@
-package com.example.sawaapplication.screens.authentication.data.repository
+package com.example.sawaapplication.screens.authentication.data.dataSources.repository
 
 
 import com.example.sawaapplication.screens.authentication.data.dataSources.remote.FirebaseAuthDataSource
