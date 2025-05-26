@@ -110,8 +110,8 @@ fun OnboardingPageV2(
     val infiniteTransition = rememberInfiniteTransition()
 
     val imageSize by infiniteTransition.animateFloat(
-        initialValue = 200.0f,
-        targetValue = 250.0f,
+        initialValue = integerResource(R.integer.minImageSize).toFloat(),
+        targetValue = integerResource(R.integer.maxImageSize).toFloat(),
         animationSpec = infiniteRepeatable(
             animation = tween(1600, delayMillis = 200,easing = FastOutLinearInEasing),
             repeatMode = RepeatMode.Reverse

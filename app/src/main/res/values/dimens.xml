@@ -54,12 +54,15 @@
     <integer name="photoBoxSize">96</integer>
     <integer name="textSize1">14</integer>
     <integer name="textSize2">18</integer>
+
     <!--onBoarding Dimensions-->
     <integer name="getStartedButtonHeight">48</integer>
     <integer name="getStartedButtonWidth">200</integer>
     <integer name="circleSize">20</integer>
     <integer name="Space">40</integer>
     <integer name="topPadding">48</integer>
+    <integer name="minImageSize">200</integer>
+    <integer name="maxImageSize">250</integer>
 
     <!--font size-->
     <integer name="TitleFontSize">24</integer>
