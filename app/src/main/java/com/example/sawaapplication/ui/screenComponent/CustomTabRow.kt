@@ -1,11 +1,11 @@
-package com.example.sawaapplication.screens.home.presentation.screens.component
+package com.example.sawaapplication.ui.screenComponent
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,10 +28,10 @@ fun CustomTabRow(
         containerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onPrimary,
         indicator = { tabPositions ->
-            TabRowDefaults.Indicator(
+            SecondaryIndicator(
                 modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                color = firstOrange,
-                height = integerResource(R.integer.extraSmallSpace).dp
+                height = integerResource(R.integer.extraSmallSpace).dp,
+                color = firstOrange
             )
         },
     ) {

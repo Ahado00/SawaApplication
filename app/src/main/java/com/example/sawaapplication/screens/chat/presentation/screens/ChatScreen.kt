@@ -199,7 +199,6 @@ fun ChatScreen(
             ChatTopBarBanner(
                 communityImage = communityImage,
                 onBackClick = { navController.popBackStack() },
-                onImageClick = { navController.navigate("community_screen/$communityId") }
             )
 
             ChatMembersHeader(
@@ -217,7 +216,7 @@ fun ChatScreen(
                         .fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("No messages yet.", style = MaterialTheme.typography.bodyLarge)
+                    Text(stringResource(id = R.string.noMessages), style = MaterialTheme.typography.bodyLarge)
                 }// challenge is challenge is challenge ;)
             } else {
                 LazyColumn(

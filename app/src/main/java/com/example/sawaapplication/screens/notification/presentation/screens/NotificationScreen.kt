@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,6 +39,7 @@ import com.example.sawaapplication.R
 import com.example.sawaapplication.screens.notification.presentation.screens.component.NotificationCard
 import com.example.sawaapplication.screens.notification.presentation.viewmodels.NotificationViewModel
 import com.example.sawaapplication.screens.profile.presentation.vm.ProfileViewModel
+import com.example.sawaapplication.ui.theme.black
 import java.text.SimpleDateFormat
 
 @SuppressLint("SimpleDateFormat")
@@ -68,7 +70,7 @@ fun NotificationScreen(
         if (rems.isNotEmpty()) {
             item {
                 Text(
-                    "Event Attendance Reminders",
+                    stringResource(R.string.eventAttendanceReminder),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
@@ -79,14 +81,18 @@ fun NotificationScreen(
                     Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
-                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainer)
+                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.tertiaryContainer)
 
                 ) {
                     Row(
                         Modifier.padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(rem.message, Modifier.weight(1f))
+                        Text(
+                            text = stringResource(id = R.string.didYouAttend) + rem.message + "?",
+                            Modifier.weight(1f),
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
                         Spacer(Modifier.width(8.dp))
                         Box(
                             modifier = Modifier
@@ -103,9 +109,10 @@ fun NotificationScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                "Yes",
+                                stringResource(R.string.yes),
                                 fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.background
+                                color = MaterialTheme.colorScheme.background,
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
 
@@ -116,7 +123,7 @@ fun NotificationScreen(
                                 .size(48.dp, 32.dp)
                                 .clip(RoundedCornerShape(10.dp))
                                 .border(
-                                    1.dp,
+                                    2.dp,
                                     MaterialTheme.colorScheme.primary,
                                     RoundedCornerShape(10.dp)
                                 )
@@ -129,13 +136,17 @@ fun NotificationScreen(
                                 },
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("No", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
+                            Text(
+                                stringResource(R.string.no),
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold
+                            )
                         }
                     }
                 }
             }
 
-            // separator between sections
             item {
                 Spacer(Modifier.height(16.dp))
                 HorizontalDivider()
@@ -147,7 +158,7 @@ fun NotificationScreen(
         if (notifications.isNotEmpty()) {
             item {
                 Text(
-                    "Notifications",
+                    stringResource(R.string.notifications),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
@@ -160,12 +171,11 @@ fun NotificationScreen(
                     action = notification.message,
                     profileImage = null,
                     postImage = null,
-                    onClick = {}
                 )
             }
         }
 
-        // “No notifications”
+        // No notifications
         if (rems.isEmpty() && notifications.isEmpty()) {
             item {
                 Text(

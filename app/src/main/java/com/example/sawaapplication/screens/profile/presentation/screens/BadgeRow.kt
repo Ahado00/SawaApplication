@@ -1,5 +1,7 @@
 package com.example.sawaapplication.screens.profile.presentation.screens
 
+import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -27,20 +29,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.sawaapplication.R
 import com.example.sawaapplication.screens.profile.presentation.vm.ProfileViewModel
 
 @Composable
 fun BadgeRow(badges: List<Badge>) {
-
+    val context = LocalContext.current
     val profileViewModel: ProfileViewModel = hiltViewModel()
-
     val defs by profileViewModel.badgeDefinitions.collectAsState()
     val earnedIds = badges.map { it.id }
-    val orderedIds = listOf("3_days", "1_week", "2_weeks", "3_weeks", "1_month")
+
+    // The badge order
+    val orderedIds = listOf(
+        "3_days", "1_week", "2_weeks", "3_weeks", "1_month",
+    )
     val orderedDefs = orderedIds.mapNotNull { id -> defs.find { it.id == id } }
 
     LazyRow(
@@ -53,10 +61,17 @@ fun BadgeRow(badges: List<Badge>) {
             Card(
                 modifier = Modifier
                     .size(100.dp)
-                    .padding(end = 12.dp),
+                    .padding(end = 12.dp)
+                    .clickable {
+                        val resId = getBadgeToastMessageResId(badgeDef.id)
+                        if (resId != 0) {
+                            val desc = context.getString(resId as Int)
+                            Toast.makeText(context, desc, Toast.LENGTH_SHORT).show()
+                        }
+                    },
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(4.dp),
-                colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainer)
+                colors = CardDefaults.cardColors(MaterialTheme.colorScheme.tertiaryContainer)
             ) {
                 Column(
                     modifier = Modifier
@@ -68,7 +83,7 @@ fun BadgeRow(badges: List<Badge>) {
                     if (isEarned) {
                         AsyncImage(
                             model = badgeDef.iconUrl,
-                            contentDescription = badgeDef.name,
+                            contentDescription = getBadgeDisplayName(badgeDef.id),
                             modifier = Modifier
                                 .size(48.dp)
                                 .clip(CircleShape)
@@ -78,7 +93,7 @@ fun BadgeRow(badges: List<Badge>) {
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = badgeDef.name,
+                        text = getBadgeDisplayName(badgeDef.id),
                         style = MaterialTheme.typography.bodySmall,
                         textAlign = TextAlign.Center,
                         maxLines = 2,
@@ -88,5 +103,27 @@ fun BadgeRow(badges: List<Badge>) {
                 }
             }
         }
+    }
+}
+fun getBadgeToastMessageResId(badgeId: String): Comparable<*> {
+    return when (badgeId) {
+        "3_days"   -> R.string.badge_attendance_3_days
+        "1_week"   -> R.string.badge_attendance_7_days
+        "2_weeks"  -> R.string.badge_attendance_14_days
+        "3_weeks"  -> R.string.badge_attendance_21_days
+        "1_month"  -> R.string.badge_attendance_1_month
+        else -> 0
+    }
+}
+
+@Composable
+fun getBadgeDisplayName(badgeId: String): String {
+    return when (badgeId) {
+        "3_days"   -> stringResource(R.string.badgeExplorer)
+        "1_week"   -> stringResource(R.string.badgeRisingStar)
+        "2_weeks"  -> stringResource(R.string.badgeSteadySoul)
+        "3_weeks"  -> stringResource(R.string.badgePathfinder)
+        "1_month"  -> stringResource(R.string.badgeLegend)
+        else       -> ""
     }
 }

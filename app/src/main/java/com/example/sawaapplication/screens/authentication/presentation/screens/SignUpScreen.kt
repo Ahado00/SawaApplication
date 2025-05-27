@@ -48,7 +48,7 @@ import com.example.sawaapplication.screens.authentication.presentation.vmModels.
 import com.example.sawaapplication.screens.authentication.presentation.vmModels.handleAuthStateSignUp
 import com.example.sawaapplication.ui.screenComponent.CustomCard
 import com.example.sawaapplication.ui.screenComponent.CustomTextField
-import com.example.sawaapplication.ui.screenComponent.GradientButton
+import com.example.sawaapplication.ui.screenComponent.buttons.GradientButton
 import kotlinx.coroutines.delay
 
 @SuppressLint("ConfigurationScreenWidthHeight")

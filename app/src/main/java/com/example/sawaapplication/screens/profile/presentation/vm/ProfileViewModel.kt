@@ -188,4 +188,9 @@ class ProfileViewModel @Inject constructor(
             _viewedAwarded.value     = getAwardedBadges(userId)
         }
     }
+
+    fun refreshUserData() {
+        loadCurrentUserId()
+        getUserData()
+    }
 }

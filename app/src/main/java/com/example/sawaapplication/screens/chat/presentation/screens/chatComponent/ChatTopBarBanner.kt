@@ -24,7 +24,6 @@ import coil.compose.AsyncImage
 fun ChatTopBarBanner(
     communityImage: String,
     onBackClick: () -> Unit,
-    onImageClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -36,7 +35,6 @@ fun ChatTopBarBanner(
             contentDescription = "Community Banner",
             modifier = Modifier
                 .fillMaxSize(),
-//                .clickable { onImageClick() },
             contentScale = ContentScale.Crop
         )
         IconButton(

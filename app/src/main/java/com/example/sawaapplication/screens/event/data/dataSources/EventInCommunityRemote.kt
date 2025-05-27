@@ -2,6 +2,8 @@ package com.example.sawaapplication.screens.event.data.dataSources
 
 import android.net.Uri
 import android.util.Log
+import androidx.compose.ui.res.stringResource
+import com.example.sawaapplication.R
 import com.example.sawaapplication.screens.event.domain.model.Event
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
@@ -198,7 +200,7 @@ class EventInCommunityRemote @Inject constructor(
             "eventId"   to eventId,
             "startTime" to startTime,
             "responded" to false,
-            "message"   to "Did you attend \"$eventTitle\"?",
+            "message"   to "\"$eventTitle\"",
             "timestamp" to FieldValue.serverTimestamp()
         )
         firestore

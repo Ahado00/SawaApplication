@@ -8,7 +8,6 @@ val Gray = Color(0x59000000)
 val DarkContainer = Color(0xFF2B2B2B)
 val LightContainer = Color(0xFFFFFFFF)
 
-
 val DarkHighlighter = Color(0xFF424242)
 val LightHighlighter = Color(0xFFDADADA)
 
@@ -32,7 +31,7 @@ val lightGray = Color(0xFFA4A4A4)
 val Red = Color(0xFFB22626)
 
 val Beige = Color(0xFFD2CCCC)
-
+val errorColor = Color(0xFFB22626)
 
 
 

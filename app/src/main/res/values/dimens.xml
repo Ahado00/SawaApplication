@@ -102,11 +102,12 @@
     <integer name="homeScreenRoundedCornerShape">16</integer>
     <integer name="homeScreenCardElevation">4</integer>
     <integer name="homeScreenEventImageSize">140</integer>
-    <integer name="homeScreenIconSize">16</integer>
+    <integer name="homeScreenIconSize">20</integer>
     <integer name="homeCommunityNamePostPadding">64</integer>
     <integer name="homePostProfileImage">48</integer>
-    <integer name="homeScreenTopPadding">56</integer>
+    <integer name="homeScreenPadding">56</integer>
     <integer name="homeScreenBottomPadding">12</integer>
+    <integer name="homeEventTopPadding">52</integer>>
 
     <!--CommunityScreen-->
     <integer name="floatingActionButtonSize">56</integer>
@@ -176,7 +177,7 @@
     <integer name="postImageRoundedCornerShape">8</integer>
 
     <!--PostsTab-->
-    <integer name="lazyColumnPaddingTop">72</integer>
+    <integer name="lazyColumnPaddingTop">64</integer>
     <integer name="lazyColumnPaddingStartEnd">16</integer>
     <integer name="lazyColumnPaddingButton">56</integer>
     <integer name="lazyColumnArrangement">14</integer>
@@ -200,9 +201,14 @@
     <integer name="round">12</integer>
     <integer name="membersIconSize">20</integer>
     <integer name="paddingEventScreen">8</integer>
+    <integer name="eventImageHeight">148</integer>
+    <integer name="eventInfoPillWidth">64</integer>
+    <integer name="eventInfoPillIcon">16</integer>
+    <integer name="eventButtonHeight">28</integer>
 
     <!--Bottom bar-->
     <integer name="IconSize">44</integer>
     <integer name="IconShadowElevation">16</integer>
 
+    <integer name ="smallRoundCorner">8</integer>
 </resources>

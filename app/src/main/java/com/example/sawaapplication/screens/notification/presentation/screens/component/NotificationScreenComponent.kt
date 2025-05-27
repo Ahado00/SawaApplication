@@ -25,26 +25,24 @@ fun NotificationCard(
     action: String,
     profileImage: Painter? = null,
     postImage: Painter? = null,
-    onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = integerResource(R.integer.extraSmallSpace).dp, vertical = integerResource(R.integer.smallerSpace).dp)
+            .padding(integerResource(R.integer.extraSmallSpace).dp)
             .border(
                 width = integerResource(R.integer.boxBorderWidth).dp,
                 color = Color.LightGray,
                 shape = MaterialTheme.shapes.medium
             )
             .clip(MaterialTheme.shapes.medium)
-            .clickable { onClick() }
             .padding(integerResource(R.integer.smallerSpace).dp)
     ) {
         Row(
             verticalAlignment = Alignment.Top,
             modifier = Modifier.fillMaxWidth()
         ) {
-            // Profile Image (left)
+            // Profile Image
             if (profileImage != null) {
                 Image(
                     painter = profileImage,
@@ -57,7 +55,7 @@ fun NotificationCard(
 
             Spacer(modifier = Modifier.width(integerResource(R.integer.largeSpace).dp))
 
-            // Main content (center)
+
             Column(modifier = Modifier.weight(1f)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -79,7 +77,7 @@ fun NotificationCard(
                         )
                     }
 
-                    // Time on the top right
+                    // Time
                     Text(
                         text = time,
                         style = MaterialTheme.typography.bodyMedium,
@@ -91,7 +89,7 @@ fun NotificationCard(
 
             Spacer(modifier = Modifier.width(integerResource(R.integer.actionTimeSpacer).dp))
 
-            // Post Image (right)
+            // Post Image
             if (postImage != null) {
                 Image(
                     painter = postImage,

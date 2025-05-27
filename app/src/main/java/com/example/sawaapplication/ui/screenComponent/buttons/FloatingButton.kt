@@ -1,4 +1,4 @@
-package com.example.sawaapplication.ui.screenComponent
+package com.example.sawaapplication.ui.screenComponent.buttons
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape

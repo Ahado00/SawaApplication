@@ -1,4 +1,4 @@
-package com.example.sawaapplication.screens.communities.presentation.screens
+package com.example.sawaapplication.screens.communities.presentation.screens.component
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,8 +25,6 @@ import coil.compose.AsyncImage
 import com.example.sawaapplication.R
 import com.example.sawaapplication.navigation.Screen
 import com.example.sawaapplication.screens.post.domain.model.PostUiModel
-import com.example.sawaapplication.ui.theme.black
-import com.example.sawaapplication.ui.theme.white
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

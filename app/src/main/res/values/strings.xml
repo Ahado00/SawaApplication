@@ -35,6 +35,8 @@
 
     <string name="aboutMe">About Me:</string>
     <string name="editProfile">Edit Profile</string>
+    <string name="events_attended">Event Attended</string>
+    <string name="your_event_badges">Your Event Badges</string>
 
     <string name="create">Create</string>
     <string name="cancel">Cancel</string>
@@ -93,7 +95,12 @@
 
     <!-- Chats Screen-->
     <string name="chats">Chats</string>
-    <string name="groupMembers">Group Members</string>>
+    <string name="groupMembers">Group Members</string>
+    <string name="shareMedia">Share Media</string>
+    <string name="noSharedMedia">No media shared in this chat.</string>
+    <string name="members">Members</string>
+    <string name="admin">Admin</string>
+    <string name="noMessages">No messages yet</string>
 
     <!-- Event Card Screen-->
     <string name="upcomingEvents">Upcoming Events</string>
@@ -142,6 +149,10 @@
     <!--NotificationScreen-->
     <string name="noNotifications">No notifications.</string>
     <string name="systemNotification">System Notification</string>
+    <string name="eventAttendanceReminder">Event Attendance Reminder</string>
+    <string name="yes">Yes</string>
+    <string name="notifications">Notifications</string>
+    <string name="didYouAttend">Did you attend </string>
 
     <!--CreatePostScreen-->
     <string name="postContentPlaceholder">Share your Idea</string>
@@ -153,6 +164,28 @@
     <!--Event Details-->
     <string name="loading">loading...</string>
     <string name="viewLocation">View Location</string>
+    <string name="allEvents">All Events</string>
+    <string name="joinedEvents">Joined Events</string>
+    <string name="finishedEvents">Finished Events</string>
+    <string name="finish">Finished</string>
+    <string name="full">Full</string>
+    <string name="expired">Expired</string>
+    <!-- Badges -->
+    <string name="badge_attendance_3_days">3 Days Attendance</string>
+    <string name="badge_attendance_7_days">7 Days Attendance</string>
+    <string name="badge_attendance_14_days">14 Days Attendance</string>
+    <string name="badge_attendance_21_days">21 Days Attendance</string>
+    <string name="badge_attendance_1_month">1 Month Attendance</string>
+    <string name="badges">Badges</string>
+
+
+    <string name="badgeExplorer">Explorer</string>
+    <string name="badgeRisingStar">Rising Star</string>
+    <string name="badgeSteadySoul">Steady Soul</string>
+    <string name="badgePathfinder">Pathfinder</string>
+    <string name="badgeLegend">Legend</string>
+
+
 
     <!--Bottom Navigation-->
     <string name="Home">Home</string>
@@ -160,4 +193,5 @@
     <string name="Communities">Communities</string>
     <string name="Chats">Chats</string>
 
+    <string name="delete">Delete</string>
 </resources>

@@ -34,9 +34,10 @@
     <string name="failedSend">فشل في إرسال بريد إعادة التعيين</string>
     <string name="BackToLogIn">إعادة تسجيل الدخول</string>
 
-    <string name="aboutMe">عني:</string>
+    <string name="aboutMe">نبذة عني:</string>
     <string name="editProfile">تعديل الملف الشخصي</string>
-
+    <string name="events_attended">الأحداث التي تم حضورها</string>
+    <string name="your_event_badges"> الأوسمة الخاصة بك</string>
 
     <string name="create">إنشاء</string>
     <string name="cancel">إلغاء</string>
@@ -80,6 +81,11 @@
     <!-- Chats Screen-->
     <string name="chats">المحادثات</string>
     <string name="groupMembers">اعضاء المجموعة</string>
+    <string name="shareMedia">الوسائط المشتركة</string>
+    <string name="noSharedMedia">لم تتم مشاركة أي وسائط في هذه الدردشة</string>
+    <string name="members">اعضاء</string>
+    <string name="admin">مشرف</string>
+    <string name="noMessages">لا توجد رسائل حتى الآن</string>
 
     <!--NewCommunity-->
     <string name="communityCreated">تم إنشاء المجتمع</string>
@@ -143,6 +149,10 @@
     <!--NotificationScreen-->
     <string name="noNotifications">لا يوجد تنبيهات</string>
     <string name="systemNotification">تنبيهات النظام</string>
+    <string name="eventAttendanceReminder">تنبيه الحضور الحدث</string>
+    <string name="yes">نعم</string>
+    <string name="notifications">تنبيهات</string>
+    <string name="didYouAttend">هل حضرت </string>
 
     <!--CreatePostScreen-->
     <string name="postContentPlaceholder">شارك أفكارك</string>
@@ -154,11 +164,33 @@
     <!--Event Details-->
     <string name="loading">تنزيل...</string>
     <string name="viewLocation">عرض الموقع</string>
+    <string name="allEvents">كل الأحداث</string>
+    <string name="joinedEvents">الأحداث المدرجة</string>
+    <string name="finishedEvents">الأحداث المنتهية</string>
+    <string name="finish">انتهى</string>
+    <string name="full">اكتمل</string>
+    <string name="expired">منتهي</string>
+
+    <!-- Arabic (values-ar/strings.xml) -->
+    <string name="badge_attendance_3_days">حضور ٣ أيام</string>
+    <string name="badge_attendance_7_days">حضور أسبوع</string>
+    <string name="badge_attendance_14_days">حضور أسبوعين</string>
+    <string name="badge_attendance_21_days">حضور ٣ أسابيع</string>
+    <string name="badge_attendance_1_month">حضور شهر</string>
+    <string name="badges">أوسمة</string>
+
+    <string name="badgeExplorer">المستكشف</string>
+    <string name="badgeRisingStar">النجم الصاعد</string>
+    <string name="badgeSteadySoul">الروح الثابتة</string>
+    <string name="badgePathfinder">مكتشف الطريق</string>
+    <string name="badgeLegend">أسطورة</string>
 
     <!--Bottom Navigation-->
     <string name="Home">الرئيسية</string>
     <string name="Explore">استكشف</string>
     <string name="Communities">المجتمعات</string>
     <string name="Chats">المحادثات</string>
+
+    <string name="delete">حذف</string>
 
 </resources>

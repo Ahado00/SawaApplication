@@ -70,13 +70,18 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.sawaapplication.R
+import com.example.sawaapplication.screens.communities.presentation.screens.component.CommunityEventCard
+import com.example.sawaapplication.screens.communities.presentation.screens.component.CommunityFAB
+import com.example.sawaapplication.screens.communities.presentation.screens.component.CommunityHeader
+import com.example.sawaapplication.screens.communities.presentation.screens.component.CommunityTabs
+import com.example.sawaapplication.screens.communities.presentation.screens.component.PostCard
 import com.example.sawaapplication.screens.communities.presentation.vmModels.CommunityViewModel
 import com.example.sawaapplication.screens.communities.presentation.vmModels.ExploreCommunityViewModel
 import com.example.sawaapplication.screens.event.presentation.screens.formatDateString
 import com.example.sawaapplication.screens.event.presentation.screens.formatTimestampToTimeString
 import com.example.sawaapplication.utils.getCityNameFromGeoPoint
 import com.example.sawaapplication.screens.event.presentation.vmModels.EventViewModel
-import com.example.sawaapplication.screens.home.presentation.screens.component.EventCard
+import com.example.sawaapplication.ui.screenComponent.EventCard
 import com.example.sawaapplication.screens.post.presentation.vmModels.CommunityPostsViewModel
 import com.example.sawaapplication.ui.screenComponent.CustomConfirmationDialog
 import com.example.sawaapplication.ui.theme.PrimaryOrange
@@ -85,14 +90,13 @@ import com.google.firebase.auth.FirebaseAuth
 import java.net.URLEncoder
 
 // Data class for dialog states
-private data class DialogState(
+data class DialogState(
     val showLeaveCommunity: Boolean = false,
     val showLeaveEvent: Boolean = false,
     val showDeleteEvent: Boolean = false,
     val selectedEventId: String? = null
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommunityScreen(
     communityId: String,
@@ -100,7 +104,6 @@ fun CommunityScreen(
     eventViewModel: EventViewModel = hiltViewModel(),
     communityPostsViewModel: CommunityPostsViewModel = hiltViewModel(),
     joinCommunityViewModel: ExploreCommunityViewModel = hiltViewModel(),
-    onBackPressed: () -> Unit,
     onClick: (String) -> Unit,
     navController: NavHostController
 ) {
@@ -130,7 +133,9 @@ fun CommunityScreen(
     // Initialize data
     LaunchedEffect(communityId) {
         Log.d("CommunityScreen", "Initializing community: $communityId")
-        initializeCommunityData(communityId, viewModel, communityPostsViewModel, eventViewModel)
+        viewModel.fetchCommunityDetail(communityId)
+        communityPostsViewModel.loadPosts(communityId)
+        eventViewModel.loadEvents(communityId)
     }
 
     // Handle join/leave state changes
@@ -186,9 +191,7 @@ fun CommunityScreen(
     )
 
     Scaffold(
-        topBar = {
-            CommunityTopBar(onBackPressed = { navController.popBackStack() })
-        },
+
         floatingActionButton = {
             CommunityFAB(
                 selectedTab = selectedTab,
@@ -257,13 +260,13 @@ fun CommunityScreen(
                             onJoinEvent = {
                                 eventHandlers.onJoinEvent(event.id)
                                 event.time?.let { it1 ->
-                                eventViewModel.recordEventJoin(
-                                    currentUserId,
-                                    event.id,
-                                    event.title,
-                                    it1.toDate()
-                                )
-                            }
+                                    eventViewModel.recordEventJoin(
+                                        currentUserId,
+                                        event.id,
+                                        event.title,
+                                        it1.toDate()
+                                    )
+                                }
                             },
                             onLeaveEvent = {
                                 dialogState = dialogState.copy(
@@ -289,7 +292,7 @@ fun CommunityScreen(
 }
 
 // Data classes for better state management
-private data class CommunityScreenState(
+data class CommunityScreenState(
     val posts: List<com.example.sawaapplication.screens.post.domain.model.PostUiModel>,
     val events: List<com.example.sawaapplication.screens.event.domain.model.Event>,
     val communityDetail: com.example.sawaapplication.screens.communities.domain.model.Community?,
@@ -298,7 +301,7 @@ private data class CommunityScreenState(
     val isUserJoined: Boolean
 )
 
-private data class CommunityEventHandlers(
+data class CommunityEventHandlers(
     val onLeaveCommunity: () -> Unit,
     val onLeaveEvent: (String) -> Unit,
     val onDeleteEvent: (String) -> Unit,
@@ -310,84 +313,8 @@ private enum class DialogType {
     LEAVE_COMMUNITY, LEAVE_EVENT, DELETE_EVENT
 }
 
-// Helper function to initialize data
-private suspend fun initializeCommunityData(
-    communityId: String,
-    viewModel: CommunityViewModel,
-    communityPostsViewModel: CommunityPostsViewModel,
-    eventViewModel: EventViewModel
-) {
-    viewModel.fetchCommunityDetail(communityId)
-    communityPostsViewModel.loadPosts(communityId)
-    eventViewModel.loadEvents(communityId)
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CommunityTopBar(onBackPressed: () -> Unit) {
-    val layoutDirection = LocalLayoutDirection.current
-    val isRtl = layoutDirection == LayoutDirection.Rtl
-
-    TopAppBar(
-        navigationIcon = {
-            IconButton(onClick = onBackPressed) {
-                Icon(
-                    Icons.Default.ArrowBack,
-                    contentDescription = "Back",
-                    modifier = Modifier.graphicsLayer {
-                        scaleX = if (isRtl) -1f else 1f
-                    }
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background
-        ),
-        title = {},
-        windowInsets = WindowInsets(0)
-    )
-}
-
-@Composable
-private fun CommunityHeader(
-    communityDetail: com.example.sawaapplication.screens.communities.domain.model.Community?,
-    isAdmin: Boolean,
-    isUserJoined: Boolean,
-    navController: NavHostController,
-    communityId: String,
-    onJoinCommunity: () -> Unit,
-    onShowLeaveCommunityDialog: () -> Unit
-) {
-    Spacer(Modifier.height(16.dp))
-
-    // Community Image with Edit Button
-    CommunityImageSection(
-        communityDetail = communityDetail,
-        isAdmin = isAdmin,
-        navController = navController,
-        communityId = communityId
-    )
-
-    Spacer(Modifier.height(integerResource(R.integer.itemSpacerH2nd).dp))
-
-    // Community Info
-    CommunityInfoSection(communityDetail = communityDetail)
-
-    Spacer(Modifier.height(integerResource(R.integer.itemSpacerH).dp))
-
-    // Action Buttons
-    CommunityActionButtons(
-        isAdmin = isAdmin,
-        isUserJoined = isUserJoined,
-        navController = navController,
-        communityId = communityId,
-        onJoinCommunity = onJoinCommunity,
-        onShowLeaveCommunityDialog = onShowLeaveCommunityDialog
-    )
-}
-
-@Composable
-private fun CommunityImageSection(
+fun CommunityImageSection(
     communityDetail: com.example.sawaapplication.screens.communities.domain.model.Community?,
     isAdmin: Boolean,
     navController: NavHostController,
@@ -425,7 +352,7 @@ private fun CommunityImageSection(
 }
 
 @Composable
-private fun CommunityInfoSection(
+fun CommunityInfoSection(
     communityDetail: com.example.sawaapplication.screens.communities.domain.model.Community?
 ) {
     communityDetail?.let { community ->
@@ -464,269 +391,6 @@ private fun CommunityInfoSection(
             modifier = Modifier.padding(horizontal = integerResource(R.integer.communityDetailHorizontalPadding).dp)
         )
     }
-}
-
-@Composable
-private fun CommunityActionButtons(
-    isAdmin: Boolean,
-    isUserJoined: Boolean,
-    navController: NavHostController,
-    communityId: String,
-    onJoinCommunity: () -> Unit,
-    onShowLeaveCommunityDialog: () -> Unit
-) {
-    when {
-        isAdmin -> {
-            AdminChatButton(navController, communityId)
-        }
-
-        isUserJoined -> {
-            MemberActionButtons(
-                navController = navController,
-                communityId = communityId,
-                onShowLeaveCommunityDialog = onShowLeaveCommunityDialog
-            )
-        }
-
-        else -> {
-            JoinCommunityButton(onJoinCommunity = onJoinCommunity)
-        }
-    }
-}
-
-@Composable
-private fun AdminChatButton(navController: NavHostController, communityId: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
-        OutlinedButton(
-            onClick = { navController.navigate("chat/$communityId") },
-            shape = RoundedCornerShape(integerResource(R.integer.roundedCornerShapeCircle)),
-            border = BorderStroke(integerResource(R.integer.buttonStroke).dp, PrimaryOrange),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-            contentPadding = PaddingValues(
-                horizontal = integerResource(R.integer.buttonPaddingH).dp,
-                vertical = integerResource(R.integer.buttonPaddingV).dp
-            ),
-            elevation = ButtonDefaults.buttonElevation(integerResource(R.integer.buttonElevation).dp),
-            modifier = Modifier.weight(1f)
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.chats),
-                contentDescription = "chat icon",
-                tint = PrimaryOrange,
-                modifier = Modifier.size(integerResource(R.integer.iconSize).dp)
-            )
-            Spacer(Modifier.width(integerResource(R.integer.itemSpacerH3ed).dp))
-            Text(stringResource(R.string.chat))
-        }
-    }
-}
-
-@Composable
-private fun MemberActionButtons(
-    navController: NavHostController,
-    communityId: String,
-    onShowLeaveCommunityDialog: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(integerResource(R.integer.padding).dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        // Leave Community Button
-        OutlinedButton(
-            onClick = onShowLeaveCommunityDialog,
-            shape = RoundedCornerShape(integerResource(R.integer.roundedCornerShapeCircle)),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-            border = BorderStroke(integerResource(R.integer.buttonStroke).dp, PrimaryOrange),
-            contentPadding = PaddingValues(
-                horizontal = integerResource(R.integer.buttonPaddingH).dp,
-                vertical = integerResource(R.integer.buttonPaddingV).dp
-            ),
-            elevation = ButtonDefaults.buttonElevation(integerResource(R.integer.buttonElevation).dp),
-            modifier = Modifier.weight(1f)
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.unjoind),
-                contentDescription = "leave icon",
-                tint = PrimaryOrange,
-                modifier = Modifier.size(integerResource(R.integer.iconSize).dp)
-            )
-            Spacer(Modifier.width(integerResource(R.integer.itemSpacerH3ed).dp))
-            Text(stringResource(R.string.joined))
-        }
-
-        Spacer(Modifier.width(8.dp))
-
-        // Chat Button
-        OutlinedButton(
-            onClick = { navController.navigate("chat/$communityId") },
-            shape = RoundedCornerShape(integerResource(R.integer.roundedCornerShapeCircle)),
-            border = BorderStroke(integerResource(R.integer.buttonStroke).dp, PrimaryOrange),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-            contentPadding = PaddingValues(
-                horizontal = integerResource(R.integer.buttonPaddingH).dp,
-                vertical = integerResource(R.integer.buttonPaddingV).dp
-            ),
-            elevation = ButtonDefaults.buttonElevation(integerResource(R.integer.buttonElevation).dp),
-            modifier = Modifier.weight(1f)
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.chats),
-                contentDescription = "chat icon",
-                tint = PrimaryOrange,
-                modifier = Modifier.size(integerResource(R.integer.iconSize).dp)
-            )
-            Spacer(Modifier.width(integerResource(R.integer.itemSpacerH3ed).dp))
-            Text(stringResource(R.string.chat))
-        }
-    }
-}
-
-@Composable
-private fun JoinCommunityButton(onJoinCommunity: () -> Unit) {
-    Button(
-        onClick = onJoinCommunity,
-        shape = RoundedCornerShape(integerResource(R.integer.roundedCornerShapeCircle)),
-        colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange),
-        contentPadding = PaddingValues(
-            horizontal = integerResource(R.integer.buttonPaddingH).dp,
-            vertical = integerResource(R.integer.buttonPaddingV).dp
-        ),
-        elevation = ButtonDefaults.buttonElevation(integerResource(R.integer.buttonElevation).dp)
-    ) {
-        Icon(Icons.Default.PersonAdd, contentDescription = null)
-        Spacer(Modifier.width(integerResource(R.integer.itemSpacerH3ed).dp))
-        Text(
-            stringResource(R.string.joinCommunity),
-            style = MaterialTheme.typography.bodyLarge
-        )
-    }
-}
-
-@Composable
-private fun CommunityTabs(
-    selectedTab: Int,
-    onTabSelected: (Int) -> Unit
-) {
-    val tabs = listOf(stringResource(R.string.posts), stringResource(R.string.events))
-
-    TabRow(
-        selectedTabIndex = selectedTab,
-        containerColor = MaterialTheme.colorScheme.background,
-        indicator = { positions ->
-            TabRowDefaults.Indicator(
-                Modifier
-                    .tabIndicatorOffset(positions[selectedTab])
-                    .height(integerResource(R.integer.tabRowHeight).dp),
-                color = PrimaryOrange
-            )
-        }
-    ) {
-        tabs.forEachIndexed { index, title ->
-            Tab(
-                selected = selectedTab == index,
-                onClick = { onTabSelected(index) },
-                text = {
-                    Text(
-                        title,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = if (selectedTab == index) {
-                            MaterialTheme.colorScheme.onBackground
-                        } else {
-                            MaterialTheme.colorScheme.onPrimaryContainer
-                        }
-                    )
-                }
-            )
-        }
-    }
-}
-
-@Composable
-private fun CommunityFAB(
-    selectedTab: Int,
-    communityId: String,
-    navController: NavHostController
-) {
-    FloatingActionButton(
-        onClick = {
-            val route = when (selectedTab) {
-                0 -> "create_post/$communityId"
-                1 -> "create_event/$communityId"
-                else -> return@FloatingActionButton
-            }
-            navController.navigate(route)
-        },
-        modifier = Modifier.size(integerResource(R.integer.floatingActionButtonSize).dp),
-        shape = CircleShape,
-        containerColor = PrimaryOrange,
-        contentColor = white,
-        elevation = FloatingActionButtonDefaults.elevation(integerResource(R.integer.floatingActionButtonElevation).dp)
-    ) {
-        Icon(
-            imageVector = when (selectedTab) {
-                0 -> Icons.Default.Edit
-                1 -> Icons.Default.Event
-                else -> Icons.Default.Edit
-            },
-            contentDescription = when (selectedTab) {
-                0 -> "Add Post"
-                1 -> "Add Event"
-                else -> "Add"
-            }
-        )
-    }
-}
-
-@Composable
-private fun CommunityEventCard(
-    event: com.example.sawaapplication.screens.event.domain.model.Event,
-    communityName: String,
-    currentUserId: String,
-    navController: NavHostController,
-    communityId: String,
-    onJoinEvent: () -> Unit,
-    onLeaveEvent: () -> Unit,
-    onEditEvent: () -> Unit,
-    onDeleteEvent: () -> Unit
-) {
-    val context = LocalContext.current
-    val timeFormatted = event.time?.let { formatTimestampToTimeString(it) } ?: "No time set"
-    val formattedDate = formatDateString(event.date)
-
-    EventCard(
-        image = event.imageUri,
-        title = event.title,
-        description = event.description,
-        location = context.getCityNameFromGeoPoint(event.location),
-        participants = event.memberLimit,
-        joinedUsers = event.joinedUsers,
-        community = communityName,
-        time = timeFormatted,
-        date = formattedDate,
-        joined = event.joinedUsers.contains(currentUserId),
-        isEditable = event.createdBy == currentUserId,
-        onEditClick = onEditEvent,
-        onDeleteClick = onDeleteEvent,
-        onJoinClick = {
-            if (event.joinedUsers.contains(currentUserId)) {
-                onLeaveEvent()
-            } else {
-                onJoinEvent()
-            }
-        },
-        showCancelButton = true,
-        modifier = Modifier.padding(4.dp),
-        eventTimestamp = event.time,
-        onClick = { navController.navigate("event_detail/$communityId/${event.id}") }
-    )
 }
 
 @Composable

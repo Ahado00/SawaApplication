@@ -27,7 +27,7 @@ import com.example.sawaapplication.R
 import com.example.sawaapplication.navigation.Screen
 import com.example.sawaapplication.screens.communities.presentation.screens.component.MyCommunitiesCard
 import com.example.sawaapplication.screens.communities.presentation.vmModels.CommunityViewModel
-import com.example.sawaapplication.ui.screenComponent.FloatingButton
+import com.example.sawaapplication.ui.screenComponent.buttons.FloatingButton
 import com.example.sawaapplication.ui.screenComponent.SearchField
 import com.google.firebase.auth.FirebaseAuth
 

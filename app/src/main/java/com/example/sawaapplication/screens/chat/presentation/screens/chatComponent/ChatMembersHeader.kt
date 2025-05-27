@@ -21,9 +21,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.sawaapplication.R
 import com.example.sawaapplication.screens.chat.domain.model.ChatUserInfo
 
 @Composable
@@ -70,7 +72,7 @@ fun ChatMembersHeader(
                     .padding(horizontal = 8.dp, vertical = 6.dp)
             ) {
                 Text(
-                    text = "${members.size} Members",
+                    text = "${members.size}"+ stringResource(id = R.string.members),
                     color = MaterialTheme.colorScheme.background,
                     style = MaterialTheme.typography.bodySmall
                 )

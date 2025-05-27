@@ -46,7 +46,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.painterResource
@@ -59,13 +58,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.sawaapplication.R
 import com.example.sawaapplication.navigation.Screen
-import com.example.sawaapplication.screens.profile.presentation.screens.IconSwitch
-import com.example.sawaapplication.screens.profile.presentation.screens.SettingsSwitches
 import com.example.sawaapplication.screens.profile.presentation.screens.changeAppLocale
 import com.example.sawaapplication.screens.profile.presentation.vm.ThemeViewModel
-import com.example.sawaapplication.ui.screenComponent.GradientButton
+import com.example.sawaapplication.ui.screenComponent.buttons.GradientButton
 import com.example.sawaapplication.ui.theme.OrangeText
-import com.example.sawaapplication.ui.theme.SawaApplicationTheme
 
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable

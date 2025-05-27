@@ -2,15 +2,21 @@ package com.example.sawaapplication.screens.communities.presentation.screens.com
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -18,6 +24,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,6 +37,51 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
+import com.example.sawaapplication.screens.communities.domain.model.Community
+
+@Composable
+fun ExploreCommunityCardList(
+    communities: List<Community>,
+    currentUserId: String,
+    listState: LazyListState,
+    onCommunityClick: (String) -> Unit,
+    onJoinClick: (String) -> Unit,
+    onLeaveClick: (String) -> Unit
+) {
+    LazyColumn(
+        state = listState,
+        modifier = Modifier.fillMaxSize()) {
+        items(communities, key = { it.id }) { community ->
+            val isJoined = currentUserId in community.members
+
+            CommunityCard(
+                communityName = community.name,
+                communityMember = community.members.size,
+                communityImage = rememberAsyncImagePainter(community.image),
+                communityCategory = community.category,
+                joinButton = {
+                    JoinButton(
+                        isJoined = isJoined,
+                        onClick = {
+                            if (isJoined) onLeaveClick(community.id)
+                            else onJoinClick(community.id)
+                        }
+                    )
+                },
+                onClick = {
+                    onCommunityClick(community.id)
+                }
+            )
+
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 4.dp),
+                thickness = 1.dp,
+                color = Color.LightGray
+            )
+        }
+    }
+}
 
 @Composable
 fun CommunityCard(
@@ -76,12 +128,16 @@ fun CommunityCard(
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Light
                 )
-                Spacer(modifier = Modifier.width(6.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
                     text = communityCategory,
                     style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Light
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.1f), shape = RoundedCornerShape(4.dp))
+                        .padding(horizontal = 4.dp, vertical = 2.dp)
+
                 )
 
             }
@@ -100,12 +156,12 @@ fun JoinButton(
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (isJoined) Color.White else Color(0xFFFF6B3D), // Orange
-            contentColor = if (isJoined) Color(0xFFFF6B3D) else Color.White
+            containerColor = if (isJoined) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.primary, // Orange
+            contentColor = if (isJoined) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
         ),
-        border = if (isJoined) BorderStroke(1.dp, Color(0xFFFF6B3D)) else null,
-        shape = RoundedCornerShape(50),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        border = if (isJoined) BorderStroke(1.dp, MaterialTheme.colorScheme.primary) else null,
+        shape = RoundedCornerShape(60),
+        contentPadding = PaddingValues(horizontal = 8.dp),
         elevation = null
     ) {
         Icon(
@@ -116,7 +172,7 @@ fun JoinButton(
         Spacer(modifier = Modifier.width(6.dp))
         Text(
             text = if (isJoined) "Joined" else "Join",
-            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium)
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
         )
     }
 }

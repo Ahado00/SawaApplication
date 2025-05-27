@@ -35,12 +35,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.sawaapplication.R
 import com.example.sawaapplication.navigation.Screen
 import com.example.sawaapplication.screens.chat.presentation.vmModels.ChatViewModel
 import com.example.sawaapplication.screens.communities.presentation.vmModels.CommunityViewModel
@@ -111,7 +113,7 @@ fun GroupMembersScreen(communityId: String, navController: NavController) {
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
-                                text = "${members.size} members",
+                                text = "${members.size}" + stringResource(id = R.string.members),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -126,7 +128,7 @@ fun GroupMembersScreen(communityId: String, navController: NavController) {
 
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "Shared Media",
+                            text = stringResource(id = R.string.shareMedia),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(bottom = 8.dp)
@@ -148,7 +150,7 @@ fun GroupMembersScreen(communityId: String, navController: NavController) {
                             }
                         } else {
                             Text(
-                                text = "No media shared in this chat.",
+                                text = stringResource(id = R.string.noSharedMedia),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -206,7 +208,7 @@ fun GroupMembersScreen(communityId: String, navController: NavController) {
                                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                                         ) {
                                             Text(
-                                                text = "Admin",
+                                                text = stringResource(id = R.string.admin),
                                                 style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.primary
                                             )

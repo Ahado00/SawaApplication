@@ -182,7 +182,6 @@ fun AppNavigation(
                 val communityId = it.arguments!!.getString("communityId")!!
                 CommunityScreen(
                     communityId = communityId,
-                    onBackPressed = { navController.popBackStack() },
                     onClick = { imageUrl ->
 
                         navController.navigate(Screen.FullscreenImage.createRoute(imageUrl))
