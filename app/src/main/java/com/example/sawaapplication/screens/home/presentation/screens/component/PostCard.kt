@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Comment
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
@@ -283,16 +282,6 @@ fun PostCard(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Comment icon (no toggle, just for looks now)
-                    IconButton(onClick = { }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Comment,
-                            contentDescription = "Comment on Post",
-                            tint = Color.Gray,
-                            modifier = Modifier
-                                .size(integerResource(R.integer.iconSize).dp)
-                        )
-                    }
                     // Show delete if the post is owned by user
                     if (isOwnedByCurrentUser) {
                         IconButton(onClick = { showDeleteDialog = true }) {
@@ -458,7 +447,7 @@ fun CommentItem(
 
     if (showDeleteDialog) {
         CustomConfirmationDialog(
-            message = stringResource(R.string.areYouSurePost),
+            message = stringResource(R.string.areYouSureComment),
             onDismiss = { showDeleteDialog = false },
             onConfirm = {
                 showDeleteDialog = false

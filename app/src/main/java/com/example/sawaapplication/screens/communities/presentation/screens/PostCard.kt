@@ -55,7 +55,7 @@ fun PostCard(
     onImageClick: (String) -> Unit,
     onLikeClick: (PostUiModel) -> Unit,
     canLike: Boolean = true,
-    onDeleteClick: (() -> Unit)? = null,  // Optional delete callback
+    onDeleteClick: (() -> Unit)? = null,
     navController: NavController
 ) {
     val isLiked = currentUserId in post.likedBy
