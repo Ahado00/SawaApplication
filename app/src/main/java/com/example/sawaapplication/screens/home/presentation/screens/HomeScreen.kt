@@ -102,6 +102,10 @@ fun PostsTab(viewModel: HomeViewModel, navController: NavController) {
 
     val deleteResult by viewModel.deletePostResult.collectAsState()
 
+    LaunchedEffect(Unit) {
+        viewModel.loadAllPostsOnce()
+    }
+
     // Trigger a notification whenever a post is liked by a user
     LaunchedEffect(postLikedUserId) {
         postLikedUserId?.let { likedUserId ->
@@ -110,10 +114,6 @@ fun PostsTab(viewModel: HomeViewModel, navController: NavController) {
                 notificationViewModel.notifyLike(it)
             }
         }
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.loadAllPosts()
     }
 
     LaunchedEffect(deleteResult) {
@@ -361,7 +361,7 @@ fun MyEventsTab(
             )
         }
 
-        //Dialog for confirm leaving an event
+        // Dialog for confirm leaving an event
         if (showLeaveEventDialog && selectedEventId != null && selectedCommunityId != null) {
             CustomConfirmationDialog(
                 message = stringResource(R.string.areYouSureEvent),

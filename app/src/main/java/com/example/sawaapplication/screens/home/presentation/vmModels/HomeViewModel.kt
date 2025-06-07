@@ -26,9 +26,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -83,6 +80,26 @@ class HomeViewModel @Inject constructor(
     private val _postComments = MutableStateFlow<Map<String, List<Comment>>>(emptyMap())
     val postComments: StateFlow<Map<String, List<Comment>>> = _postComments
 
+    private val _selectedFilter = MutableStateFlow<EventFilterType>(EventFilterType.DEFAULT)
+    val selectedFilter: StateFlow<EventFilterType> = _selectedFilter
+
+    private var isLoaded = false
+
+    val filteredEvents: List<Event>
+        get() {
+            val now = System.currentTimeMillis()
+            return when (selectedFilter.value) {
+                EventFilterType.Finished ->
+                    joinedEvents.value.filter { (it.time?.toDate()?.time ?: 0L) < now }
+
+                EventFilterType.Still ->
+                    joinedEvents.value.filter { (it.time?.toDate()?.time ?: Long.MAX_VALUE) > now }
+
+                EventFilterType.DEFAULT ->
+                    joinedEvents.value
+            }.sortedBy { it.time?.toDate()?.time ?: Long.MAX_VALUE }
+        }
+
     fun getEventById(eventId: String): Event? {
         return _events.value.find { it.id == eventId }
     }
@@ -126,6 +143,13 @@ class HomeViewModel @Inject constructor(
             } finally {
                 _loading.value = false
             }
+        }
+    }
+
+    fun loadAllPostsOnce() {
+        if (!isLoaded) {
+            isLoaded = true
+            loadAllPosts()
         }
     }
 
@@ -250,27 +274,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private val _selectedFilter = MutableStateFlow<EventFilterType>(EventFilterType.DEFAULT)
-    val selectedFilter: StateFlow<EventFilterType> = _selectedFilter
-
     fun setFilter(filter: EventFilterType) {
         _selectedFilter.value = filter
     }
-
-    val filteredEvents: List<Event>
-        get() {
-            val now = System.currentTimeMillis()
-            return when (selectedFilter.value) {
-                EventFilterType.Finished ->
-                    joinedEvents.value.filter { (it.time?.toDate()?.time ?: 0L) < now }
-
-                EventFilterType.Still ->
-                    joinedEvents.value.filter { (it.time?.toDate()?.time ?: Long.MAX_VALUE) > now }
-
-                EventFilterType.DEFAULT ->
-                    joinedEvents.value
-            }.sortedBy { it.time?.toDate()?.time ?: Long.MAX_VALUE }
-        }
 
     fun addComment(communityId: String, postId: String, comment: Comment) {
         viewModelScope.launch {
