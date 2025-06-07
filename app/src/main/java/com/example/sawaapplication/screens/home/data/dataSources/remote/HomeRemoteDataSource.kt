@@ -253,6 +253,23 @@ class HomeRemoteDataSource @Inject constructor(
         postRef.delete().await()
     }
 
+    suspend fun deleteComment(communityId: String, postId: String, commentId: String) {
+        try {
+            val commentRef = firestore
+                .collection("Community")
+                .document(communityId)
+                .collection("posts")
+                .document(postId)
+                .collection("comments")
+                .document(commentId)
+
+            commentRef.delete().await()
+        } catch (e: Exception) {
+            Log.e("Firebase", "Error deleting comment: ${e.message}")
+            throw e
+        }
+    }
+
     suspend fun fetchJoinedEvents(userId: String): List<Event> {
         val communityIds = getUserCommunityIds(userId)
 
@@ -288,6 +305,7 @@ class HomeRemoteDataSource @Inject constructor(
                 .collection("comments")
                 .document()
 
+            val commentWithId = comment.copy(id = commentRef.id)
             commentRef.set(comment).await()
         } catch (e: Exception) {
             Log.e("Firebase", "Error adding comment: ${e.message}")
@@ -306,7 +324,10 @@ class HomeRemoteDataSource @Inject constructor(
                 .get()
                 .await()
 
-            snapshot.documents.mapNotNull { it.toObject(Comment::class.java) }
+            snapshot.documents.mapNotNull { doc ->
+                val comment = doc.toObject(Comment::class.java)
+                comment?.copy(id = doc.id)
+            }
         } catch (e: Exception) {
             Log.e("Firebase", "Error fetching comments: ${e.message}")
             emptyList()
