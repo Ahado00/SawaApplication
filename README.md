@@ -26,6 +26,7 @@ The app also includes:
 - Group Chat — Real-time messaging and image sharing within communities
 - Search & Filters — Find communities by name or category, filter by recent/popular
 - Notifications & Reminders — Get alerts before and after events
+- Comments — Leave a comment on posts you like
 
 ## Screenshots
 <table>
