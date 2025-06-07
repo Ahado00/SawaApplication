@@ -422,7 +422,9 @@ fun CommentItem(
                 contentScale = ContentScale.Crop
             )
         }
+
         Spacer(modifier = Modifier.width(8.dp))
+
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = userName,
@@ -433,13 +435,13 @@ fun CommentItem(
                 text = comment.commentContent,
                 style = MaterialTheme.typography.bodyMedium
             )
+            Text(
+                text = formattedDate,
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.Gray,
+                modifier = Modifier.padding(start = 4.dp)
+            )
         }
-        Text(
-            text = formattedDate,
-            style = MaterialTheme.typography.labelSmall,
-            color = Color.Gray,
-            modifier = Modifier.padding(start = 8.dp)
-        )
 
         // Show delete icon if this comment is by the current user
         if (currentUserId == comment.commentedById) {
