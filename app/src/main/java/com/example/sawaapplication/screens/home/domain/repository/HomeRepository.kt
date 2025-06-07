@@ -16,4 +16,6 @@ interface HomeRepository {
     suspend fun fetchJoinedEvents(userId: String): List<Event>
     suspend fun addComment(communityId: String, postId: String, comment: Comment)
     suspend fun fetchComments(communityId: String, postId: String): List<Comment>
+    suspend fun deleteComment(communityId: String, postId: String, commentId: String)
+
 }

@@ -7,6 +7,7 @@ import com.example.sawaapplication.screens.event.domain.model.Event
 import com.example.sawaapplication.screens.event.domain.useCases.GetAllEventInCommunity
 import com.example.sawaapplication.screens.home.domain.model.EventFilterType
 import com.example.sawaapplication.screens.home.domain.useCases.AddCommentUseCase
+import com.example.sawaapplication.screens.home.domain.useCases.DeleteCommentUseCase
 import com.example.sawaapplication.screens.home.domain.useCases.DeletePostUseCase
 import com.example.sawaapplication.screens.home.domain.useCases.FetchAllPostsUseCase
 import com.example.sawaapplication.screens.home.domain.useCases.FetchCommentsUseCase
@@ -41,7 +42,8 @@ class HomeViewModel @Inject constructor(
     private val fetchPostsByUserUseCase: FetchPostsByUserUseCase,
     private val fetchLikedPostsByUserUseCase: FetchLikedPostsByUserUseCase,
     private val addCommentUseCase: AddCommentUseCase,
-    private val fetchCommentsUseCase: FetchCommentsUseCase
+    private val fetchCommentsUseCase: FetchCommentsUseCase,
+    private val deleteCommentUseCase: DeleteCommentUseCase
 ) : ViewModel() {
 
     private val _posts = MutableStateFlow<List<Post>>(emptyList())
@@ -82,6 +84,9 @@ class HomeViewModel @Inject constructor(
 
     private val _selectedFilter = MutableStateFlow<EventFilterType>(EventFilterType.DEFAULT)
     val selectedFilter: StateFlow<EventFilterType> = _selectedFilter
+
+    private val _deleteCommentResult = MutableStateFlow<Result<Unit>?>(null)
+    val deleteCommentResult: StateFlow<Result<Unit>?> = _deleteCommentResult
 
     private var isLoaded = false
 
@@ -285,6 +290,20 @@ class HomeViewModel @Inject constructor(
             } catch (e: Exception) {
                 _error.value = "Failed to add comment: ${e.message}"
             }
+        }
+    }
+
+    fun deleteComment(communityId: String, postId: String, commentId: String) {
+        viewModelScope.launch {
+            _deleteCommentResult.value = null
+            val result = runCatching {
+                deleteCommentUseCase(communityId, postId, commentId)
+                _postComments.update { oldMap ->
+                    val updatedComments = oldMap[postId]?.filterNot { it.id == commentId }
+                    if (updatedComments != null) oldMap + (postId to updatedComments) else oldMap
+                }
+            }
+            _deleteCommentResult.value = result
         }
     }
 

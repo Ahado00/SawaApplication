@@ -56,4 +56,8 @@ class HomeRepositoryImpl @Inject constructor(
         return remoteDataSource.fetchComments(communityId, postId)
     }
 
+    override suspend fun deleteComment(communityId: String, postId: String, commentId: String) {
+        remoteDataSource.deleteComment(communityId, postId, commentId)
+    }
+
 }

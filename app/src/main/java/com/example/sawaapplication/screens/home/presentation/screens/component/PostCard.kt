@@ -351,7 +351,9 @@ fun PostCard(
                             comment = comment,
                             userName = commentUserName,
                             userImage = commentUserImage,
-                            navController = navController
+                            navController = navController,
+                            postId = docId,
+                            communityId = post.communityId
                         )
                     }
                 } else {
@@ -383,8 +385,14 @@ fun CommentItem(
     comment: Comment,
     userName: String,
     userImage: String,
-    navController: NavController
+    navController: NavController,
+    viewModel: HomeViewModel = hiltViewModel(),
+    postId: String,
+    communityId: String
 ) {
+
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     // Format the date as "04 June 2025, 05:25"
     val formattedDate = remember(comment.createdAt) {
@@ -431,6 +439,33 @@ fun CommentItem(
             style = MaterialTheme.typography.labelSmall,
             color = Color.Gray,
             modifier = Modifier.padding(start = 8.dp)
+        )
+
+        // Show delete icon if this comment is by the current user
+        if (currentUserId == comment.commentedById) {
+            IconButton(onClick = { showDeleteDialog = true }) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete Comment",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+    }
+
+    if (showDeleteDialog) {
+        CustomConfirmationDialog(
+            message = stringResource(R.string.areYouSurePost),
+            onDismiss = { showDeleteDialog = false },
+            onConfirm = {
+                showDeleteDialog = false
+                viewModel.deleteComment(
+                    communityId = communityId,
+                    postId = postId,
+                    commentId = comment.id
+                )
+            }
         )
     }
 }
