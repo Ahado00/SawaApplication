@@ -149,7 +149,7 @@
     <string name="postedOn">نشر في</string>
     <string name="like">إعجاب</string>
     <string name="comment">اكتب تعليق</string>
-
+    <string name="areYouSureComment">هل أنت متأكد من رغبتك في حذف التعليق؟</string>
 
     <!--HomeScreen-->
     <string name="unknownError">خطأ غير معروف</string>
