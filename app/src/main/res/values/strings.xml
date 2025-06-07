@@ -146,6 +146,8 @@
     <!--PostCard-->
     <string name="postedOn">Posted on</string>
     <string name="like">Like</string>
+    <string name="comment">write a comment</string>
+
 
     <!--HomeScreen-->
     <string name="unknownError">Unknown error</string>

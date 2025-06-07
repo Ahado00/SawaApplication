@@ -148,6 +148,8 @@
     <!--PostCard-->
     <string name="postedOn">نشر في</string>
     <string name="like">إعجاب</string>
+    <string name="comment">اكتب تعليق</string>
+
 
     <!--HomeScreen-->
     <string name="unknownError">خطأ غير معروف</string>

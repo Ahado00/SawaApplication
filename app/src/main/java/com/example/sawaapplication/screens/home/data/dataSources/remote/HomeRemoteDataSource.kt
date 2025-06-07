@@ -2,6 +2,7 @@ package com.example.sawaapplication.screens.home.data.dataSources.remote
 
 import android.util.Log
 import com.example.sawaapplication.screens.event.domain.model.Event
+import com.example.sawaapplication.screens.post.domain.model.Comment
 import com.example.sawaapplication.screens.post.domain.model.Post
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -76,6 +77,7 @@ class HomeRemoteDataSource @Inject constructor(
             Pair(emptyList(), emptyMap())
         }
     }
+
     suspend fun fetchCommunityNames(communityId: List<String>): Map<String, String> {
         val namesMap = mutableMapOf<String, String>()
 
@@ -112,7 +114,8 @@ class HomeRemoteDataSource @Inject constructor(
 
         return detailsMap
     }
-     suspend fun likePost(post: Post, postDocId: String?): Pair<Post?, String?> {
+
+    suspend fun likePost(post: Post, postDocId: String?): Pair<Post?, String?> {
         if (firebaseAuth.currentUser?.uid.isNullOrEmpty()) {
             Log.e("PostRepository", "User not logged in")
             return Pair(null, null)
@@ -162,7 +165,7 @@ class HomeRemoteDataSource @Inject constructor(
         return Pair(updatedPost, postLikedUserId)
     }
 
-     suspend fun fetchPostsByUser(userId: String): Pair<List<Post>, Map<Post, String>> {
+    suspend fun fetchPostsByUser(userId: String): Pair<List<Post>, Map<Post, String>> {
         val userCommunityIds = getUserCommunityIds(userId)
 
         if (userCommunityIds.isEmpty()) {
@@ -239,6 +242,7 @@ class HomeRemoteDataSource @Inject constructor(
         }
         return sortedPosts to docIdMap
     }
+
     suspend fun deletePost(post: Post, docId: String) {
         val postRef = firestore
             .collection("Community")
@@ -249,7 +253,7 @@ class HomeRemoteDataSource @Inject constructor(
         postRef.delete().await()
     }
 
-     suspend fun fetchJoinedEvents(userId: String): List<Event> {
+    suspend fun fetchJoinedEvents(userId: String): List<Event> {
         val communityIds = getUserCommunityIds(userId)
 
         val joinedEventsDeferred = communityIds.map { communityId ->
@@ -272,5 +276,40 @@ class HomeRemoteDataSource @Inject constructor(
         }
 
         return joinedEventsDeferred.awaitAll().flatten()
+    }
+
+    suspend fun addComment(communityId: String, postId: String, comment: Comment) {
+        try {
+            val commentRef = firestore
+                .collection("Community")
+                .document(communityId)
+                .collection("posts")
+                .document(postId)
+                .collection("comments")
+                .document()
+
+            commentRef.set(comment).await()
+        } catch (e: Exception) {
+            Log.e("Firebase", "Error adding comment: ${e.message}")
+            throw e
+        }
+    }
+
+    suspend fun fetchComments(communityId: String, postId: String): List<Comment> {
+        return try {
+            val snapshot = firestore
+                .collection("Community")
+                .document(communityId)
+                .collection("posts")
+                .document(postId)
+                .collection("comments")
+                .get()
+                .await()
+
+            snapshot.documents.mapNotNull { it.toObject(Comment::class.java) }
+        } catch (e: Exception) {
+            Log.e("Firebase", "Error fetching comments: ${e.message}")
+            emptyList()
+        }
     }
 }

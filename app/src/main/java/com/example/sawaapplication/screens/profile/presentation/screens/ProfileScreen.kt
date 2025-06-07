@@ -312,6 +312,9 @@ fun ProfileScreen(
                                 top = integerResource(R.integer.smallSpace).dp,
                                 bottom = integerResource(R.integer.smallSpace).dp
                             ),
+                        onCommentClick = {
+                            navController.navigate("post_comments/${post.id}")
+                        }
                     )
                 }
             }
