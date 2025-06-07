@@ -361,7 +361,7 @@ fun MyEventsTab(
             )
         }
 
-        //Dialog for confirm leaving an event
+        // Dialog for confirm leaving an event
         if (showLeaveEventDialog && selectedEventId != null && selectedCommunityId != null) {
             CustomConfirmationDialog(
                 message = stringResource(R.string.areYouSureEvent),
