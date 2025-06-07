@@ -6,14 +6,17 @@ import androidx.lifecycle.viewModelScope
 import com.example.sawaapplication.screens.event.domain.model.Event
 import com.example.sawaapplication.screens.event.domain.useCases.GetAllEventInCommunity
 import com.example.sawaapplication.screens.home.domain.model.EventFilterType
+import com.example.sawaapplication.screens.home.domain.useCases.AddCommentUseCase
 import com.example.sawaapplication.screens.home.domain.useCases.DeletePostUseCase
 import com.example.sawaapplication.screens.home.domain.useCases.FetchAllPostsUseCase
+import com.example.sawaapplication.screens.home.domain.useCases.FetchCommentsUseCase
 import com.example.sawaapplication.screens.home.domain.useCases.FetchCommunityNamesUseCase
 import com.example.sawaapplication.screens.home.domain.useCases.FetchJoinedEventsUseCase
 import com.example.sawaapplication.screens.home.domain.useCases.FetchLikedPostsByUserUseCase
 import com.example.sawaapplication.screens.home.domain.useCases.FetchPostsByUserUseCase
 import com.example.sawaapplication.screens.home.domain.useCases.FetchUserDetailsUseCase
 import com.example.sawaapplication.screens.home.domain.useCases.LikePostUseCase
+import com.example.sawaapplication.screens.post.domain.model.Comment
 import com.example.sawaapplication.screens.post.domain.model.Post
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +24,11 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,7 +42,9 @@ class HomeViewModel @Inject constructor(
     private val deletePostUseCase: DeletePostUseCase,
     private val fetchJoinedEventsUseCase: FetchJoinedEventsUseCase,
     private val fetchPostsByUserUseCase: FetchPostsByUserUseCase,
-    private val fetchLikedPostsByUserUseCase: FetchLikedPostsByUserUseCase
+    private val fetchLikedPostsByUserUseCase: FetchLikedPostsByUserUseCase,
+    private val addCommentUseCase: AddCommentUseCase,
+    private val fetchCommentsUseCase: FetchCommentsUseCase
 ) : ViewModel() {
 
     private val _posts = MutableStateFlow<List<Post>>(emptyList())
@@ -71,6 +80,9 @@ class HomeViewModel @Inject constructor(
     private val _events = MutableStateFlow<List<Event>>(emptyList())
     val events = _events.asStateFlow()
 
+    private val _postComments = MutableStateFlow<Map<String, List<Comment>>>(emptyMap())
+    val postComments: StateFlow<Map<String, List<Comment>>> = _postComments
+
     fun getEventById(eventId: String): Event? {
         return _events.value.find { it.id == eventId }
     }
@@ -98,7 +110,6 @@ class HomeViewModel @Inject constructor(
                 val communityIds = postsList.map { it.communityId }.distinct()
                 val userIds = postsList.map { it.userId }.distinct()
 
-                // Fetch names in parallel
                 val namesDeferred = async { fetchCommunityNamesUseCase(communityIds) }
                 val detailsDeferred = async { fetchUserDetailsUseCase(userIds) }
 
@@ -117,7 +128,6 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-
 
     fun likePost(post: Post) {
         viewModelScope.launch {
@@ -239,6 +249,7 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
     private val _selectedFilter = MutableStateFlow<EventFilterType>(EventFilterType.DEFAULT)
     val selectedFilter: StateFlow<EventFilterType> = _selectedFilter
 
@@ -260,6 +271,24 @@ class HomeViewModel @Inject constructor(
                     joinedEvents.value
             }.sortedBy { it.time?.toDate()?.time ?: Long.MAX_VALUE }
         }
+
+    fun addComment(communityId: String, postId: String, comment: Comment) {
+        viewModelScope.launch {
+            try {
+                addCommentUseCase(communityId, postId, comment)
+            } catch (e: Exception) {
+                _error.value = "Failed to add comment: ${e.message}"
+            }
+        }
+    }
+
+    fun fetchComments(communityId: String, postId: String) {
+        viewModelScope.launch {
+            val comments = fetchCommentsUseCase(communityId, postId)
+            _postComments.update { old ->
+                old + (postId to comments)
+            }
+        }
+    }
+
 }
-
-

@@ -271,7 +271,10 @@ fun UserAccount(
                     },                        onLikeClick = { viewModel.likePost(post) },
                     onDeleteClick = { viewModel.deletePost(post) },
                     navController = navController,
-                    modifier = Modifier.padding(vertical = 16.dp)
+                    modifier = Modifier.padding(vertical = 16.dp),
+                    onCommentClick = {
+                        navController.navigate("post_comments/${post.id}")
+                    }
                 )
             }
         }

@@ -1,9 +1,8 @@
 package com.example.sawaapplication.screens.home.domain.repository
 
-import android.net.Uri
 import com.example.sawaapplication.screens.event.domain.model.Event
+import com.example.sawaapplication.screens.post.domain.model.Comment
 import com.example.sawaapplication.screens.post.domain.model.Post
-import com.example.sawaapplication.screens.profile.domain.model.User
 
 interface HomeRepository {
     suspend fun getUserCommunityIds(userId: String):List<String>
@@ -15,4 +14,6 @@ interface HomeRepository {
     suspend fun fetchLikedPostsByUser(userId: String): Pair<List<Post>, Map<Post, String>>
     suspend fun deletePost(post: Post, docId: String)
     suspend fun fetchJoinedEvents(userId: String): List<Event>
+    suspend fun addComment(communityId: String, postId: String, comment: Comment)
+    suspend fun fetchComments(communityId: String, postId: String): List<Comment>
 }
